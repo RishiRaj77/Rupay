@@ -79,6 +79,7 @@
       height: 100%;
       min-height: 0;
       gap: clamp(4px, 1.2vh, 14px);
+      padding-bottom: clamp(8px, 1.6vh, 16px);
       overflow-y: auto;
       overflow-x: hidden;
       scrollbar-width: none;
@@ -106,23 +107,23 @@
 
     .rupay-logo {
       display: inline-block;
-      width: clamp(118px, 17vh, 158px);
+      width: clamp(135px, 19vh, 185px);
       height: auto;
       object-fit: contain;
       filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.35));
     }
 
     .rupay-logo-lockup {
-      width: clamp(148px, 22vh, 206px);
+      width: clamp(142px, 18.5vh, 195px);
     }
 
     .subtitle-serif {
       font-family: Georgia, "Times New Roman", Times, serif;
-      font-size: clamp(1rem, 2.4vh, 1.4rem);
+      font-size: clamp(0.95rem, 2.1vh, 1.25rem);
       font-weight: 400;
       color: #ffffff;
       letter-spacing: 0.4px;
-      margin-top: 2px;
+      margin-top: 0px;
       text-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
     }
 
@@ -140,18 +141,19 @@
     .aura-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: clamp(8px, 1.6vh, 16px) clamp(12px, 3vw, 24px);
-      width: min(86%, 36vh);
-      max-width: 320px;
-      margin: auto;
-      flex-shrink: 1;
-      min-height: 0;
+      grid-auto-rows: max-content;
+      gap: clamp(8px, 1.3vh, 14px) clamp(12px, 2.5vw, 18px);
+      width: min(86%, 30.5vh);
+      max-width: 300px;
+      margin: 0 auto;
+      flex-shrink: 0;
     }
 
     .aura-card {
       position: relative;
       aspect-ratio: 50 / 63;
       width: 100%;
+      height: auto;
       background: #0a1022;
       border: clamp(2px, 0.4vmin, 3.5px) solid #091224;
       border-bottom: clamp(2.5px, 0.5vmin, 4px) solid #1e62d0;
@@ -204,10 +206,10 @@
         inset 0 -3px 6px rgba(2, 10, 32, 0.8);
       color: #ffffff;
       font-weight: 600;
-      font-size: clamp(0.8rem, 1.8vh, 0.98rem);
+      font-size: clamp(0.82rem, 1.8vh, 1rem);
       letter-spacing: 1.2px;
       text-transform: uppercase;
-      padding: clamp(8px, 1.4vh, 13px) clamp(20px, 4vw, 32px);
+      padding: clamp(10px, 1.6vh, 14px) clamp(22px, 4.5vw, 34px);
       cursor: pointer;
       display: inline-flex;
       align-items: center;
@@ -215,6 +217,18 @@
       gap: 8px;
       flex-shrink: 0;
       transition: transform 0.12s ease, filter 0.12s ease;
+    }
+
+    #btnStart {
+      min-width: clamp(200px, 48vw, 250px);
+      padding: clamp(10px, 1.5vh, 14px) clamp(26px, 5vw, 38px);
+      font-size: clamp(0.9rem, 1.9vh, 1.05rem);
+      letter-spacing: 2px;
+      margin: 2px 0;
+      box-shadow:
+        0 8px 24px rgba(4, 18, 54, 0.65),
+        inset 0 2px 4px rgba(255, 255, 255, 0.5),
+        inset 0 -3px 6px rgba(2, 10, 32, 0.85);
     }
 
     .glossy-btn:hover {
@@ -259,8 +273,8 @@
 
     /* Metallic Blue Portrait Frame (Screen 2 & 3) scaled by both width and viewport height */
     .blue-frame {
-      width: min(88%, 42vh);
-      max-width: 360px;
+      width: min(82%, 34vh);
+      max-width: 315px;
       aspect-ratio: 212 / 295;
       padding: clamp(7px, 1.2vmin, 12px);
       background: linear-gradient(180deg, #041330 0%, #0d439c 45%, #1d6ee0 78%, #072152 100%);
@@ -346,6 +360,7 @@
       gap: clamp(8px, 2vw, 16px);
       width: 100%;
       flex-shrink: 0;
+      margin-bottom: clamp(10px, 2vh, 20px);
     }
 
     .result-actions {
@@ -457,7 +472,7 @@
     /* Ultra-small phones & folded foldables (Galaxy Z Fold cover, iPhone SE, <= 360px) */
     @media (max-width: 360px) {
       .aura-grid {
-        width: min(92%, 34vh);
+        width: min(90%, 28vh);
         gap: 6px 10px;
       }
       .aura-card-label {
@@ -497,12 +512,12 @@
         height: min(94dvh, 960px);
       }
       .aura-grid {
-        width: min(86%, 38vh);
-        max-width: 350px;
+        width: min(86%, 31vh);
+        max-width: 315px;
       }
       .blue-frame {
-        width: min(86%, 44vh);
-        max-width: 390px;
+        width: min(84%, 35vh);
+        max-width: 340px;
       }
     }
 
@@ -513,20 +528,23 @@
         padding: 10px 18px;
       }
       .rupay-logo {
-        width: clamp(115px, 16vh, 155px);
+        width: clamp(125px, 16.5vh, 165px);
+      }
+      .rupay-logo-lockup {
+        width: clamp(132px, 17vh, 175px);
       }
       .subtitle-serif {
-        font-size: clamp(0.88rem, 2vh, 1.15rem);
+        font-size: clamp(0.85rem, 1.8vh, 1.1rem);
       }
       .subtitle-script {
         font-size: clamp(1.25rem, 3vh, 1.75rem);
       }
       .aura-grid {
-        width: min(84%, 34vh);
-        gap: 6px 12px;
+        width: min(84%, 28.5vh);
+        gap: 6px 10px;
       }
       .blue-frame {
-        width: min(82%, 39vh);
+        width: min(80%, 34vh);
       }
     }
 
@@ -537,12 +555,12 @@
         height: min(92dvh, 1080px);
       }
       .aura-grid {
-        width: min(86%, 38vh);
-        max-width: 400px;
+        width: min(86%, 31vh);
+        max-width: 340px;
       }
       .blue-frame {
-        width: min(86%, 44vh);
-        max-width: 440px;
+        width: min(84%, 36vh);
+        max-width: 370px;
       }
     }
 
@@ -649,7 +667,7 @@
     <!-- ==================== SCREEN 1: DISCOVER YOUR AURA (6 AVATARS) ==================== -->
     <section id="screen1" class="screen active">
       <div class="top-brand">
-        <img class="rupay-logo" src="rupay-wordmark.png?v=4" alt="RuPay" />
+        <img class="rupay-logo rupay-logo-lockup" src="rupay-logo.png?v=5" alt="RuPay - Own the edge" />
         <div class="subtitle-serif">Discover Your Aura</div>
       </div>
 
@@ -664,7 +682,7 @@
     <!-- ==================== SCREEN 2: CAMERA PREVIEW & CAPTURE ==================== -->
     <section id="screen2" class="screen">
       <div class="top-brand" style="margin-top:8px;">
-        <img class="rupay-logo" src="rupay-wordmark.png?v=4" alt="RuPay" />
+        <img class="rupay-logo rupay-logo-lockup" src="rupay-logo.png?v=5" alt="RuPay - Own the edge" />
       </div>
 
       <div class="blue-frame">
@@ -699,7 +717,7 @@
     <!-- ==================== SCREEN 3: RESULT (PRINT, SHARE, QR, PHOTO OUTPUT) ==================== -->
     <section id="screen3" class="screen">
       <div class="top-brand">
-        <img class="rupay-logo rupay-logo-lockup" src="rupay-logo.png?v=4" alt="RuPay - Own the edge" />
+        <img class="rupay-logo rupay-logo-lockup" src="rupay-logo.png?v=5" alt="RuPay - Own the edge" />
       </div>
 
       <div class="polaroid-stage">

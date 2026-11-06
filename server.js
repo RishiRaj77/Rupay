@@ -192,11 +192,11 @@ const server = http.createServer(async (req, res) => {
 const PORT = Number(process.env.PORT) || 3000;
 server.once("error", (err) => {
   if (err.code === "EADDRINUSE") {
-    server.listen(3001, "127.0.0.1", () => {
+    server.listen(3001, "0.0.0.0", () => {
       console.log("RuPay Aura Booth API & server running at http://localhost:3001");
     });
   }
 });
-server.listen(PORT, "127.0.0.1", () => {
+server.listen(PORT, "0.0.0.0", () => {
   console.log(`RuPay Aura Booth server running at http://localhost:${PORT}`);
 });
