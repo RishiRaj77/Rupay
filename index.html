@@ -2,13 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>RuPay — Discover Your Aura</title>
   <style>
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
+      -webkit-tap-highlight-color: transparent;
     }
 
     html, body {
@@ -30,12 +31,12 @@
       overflow-x: hidden;
     }
 
-    /* Responsive Kiosk Container adapting to mobile, tablet, laptop, desktop & vertical kiosks */
+    /* Responsive Kiosk Container adapting to mobile, foldable, tablet, laptop, desktop & vertical kiosks */
     .kiosk {
       position: relative;
       width: min(100%, 480px);
-      height: min(100dvh - clamp(0px, 3vmin, 32px), 900px);
-      min-height: 500px;
+      height: min(calc(100dvh - clamp(0px, 3vmin, 32px)), 920px);
+      min-height: 0;
       border-radius: clamp(0px, 2vmin, 20px);
       overflow: hidden;
       box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65);
@@ -48,7 +49,11 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: clamp(14px, 3vh, 32px) clamp(14px, 4vw, 28px);
+      padding:
+        max(clamp(10px, 2.2vh, 28px), env(safe-area-inset-top, 10px))
+        max(clamp(10px, 3.5vw, 26px), env(safe-area-inset-right, 10px))
+        max(clamp(10px, 2.2vh, 28px), env(safe-area-inset-bottom, 10px))
+        max(clamp(10px, 3.5vw, 26px), env(safe-area-inset-left, 10px));
     }
 
     /* Background white line-art doodles */
@@ -73,8 +78,15 @@
       width: 100%;
       height: 100%;
       min-height: 0;
-      gap: clamp(6px, 1.4vh, 16px);
+      gap: clamp(4px, 1.2vh, 14px);
+      overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-width: none;
       animation: fade 0.2s ease-out;
+    }
+
+    .screen::-webkit-scrollbar {
+      display: none;
     }
 
     .screen.active {
@@ -376,9 +388,10 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 16px;
+      padding: clamp(10px, 2.5vmin, 18px);
       gap: 10px;
       text-align: center;
+      overflow-y: auto;
     }
 
     .modal-backdrop.active {
@@ -389,9 +402,10 @@
       background: #0d1629;
       border: 1.5px solid rgba(120, 190, 255, 0.45);
       border-radius: 14px;
-      padding: 16px;
-      width: 100%;
-      max-width: 310px;
+      padding: clamp(12px, 2vmin, 18px);
+      width: min(92vw, 320px);
+      max-height: 82dvh;
+      overflow-y: auto;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -403,8 +417,8 @@
       background: #ffffff;
       padding: 8px;
       border-radius: 8px;
-      max-width: 55vmin;
-      max-height: 55vmin;
+      max-width: min(55vmin, 190px);
+      max-height: min(55vmin, 190px);
     }
 
     .polaroid-stage {
@@ -430,14 +444,37 @@
     #modalPolaroidCanvas {
       width: auto;
       max-width: min(76vw, 260px);
-      max-height: 68dvh;
+      max-height: 62dvh;
       height: auto;
       border-radius: 2px;
       box-shadow: 0 10px 28px rgba(0, 0, 0, 0.8);
     }
 
-    /* Mobile devices: full-screen edge-to-edge native kiosk feel */
-    @media (max-width: 540px) {
+    /* Ultra-small phones & folded foldables (Galaxy Z Fold cover, iPhone SE, <= 360px) */
+    @media (max-width: 360px) {
+      .aura-grid {
+        width: min(92%, 34vh);
+        gap: 6px 10px;
+      }
+      .aura-card-label {
+        font-size: 0.52rem;
+        padding: 10px 2px 4px;
+      }
+      .camera-bar {
+        gap: 6px;
+      }
+      .glossy-btn-sm {
+        font-size: 0.62rem;
+        padding: 6px 9px;
+      }
+      .shutter-btn {
+        width: 44px;
+        height: 44px;
+      }
+    }
+
+    /* Mobile devices & phablets: full-screen edge-to-edge native kiosk feel */
+    @media (max-width: 640px) {
       body {
         padding: 0;
       }
@@ -449,36 +486,82 @@
       }
     }
 
-    /* Large tablets & vertical kiosks (iPad Pro, 1080x1920 touchscreens) */
-    @media (min-width: 768px) and (min-height: 900px) {
+    /* Tablets in portrait & landscape (iPad Mini, iPad Air, Android tablets) */
+    @media (min-width: 641px) and (max-width: 1024px) {
       .kiosk {
-        width: min(88vw, 560px);
-        height: min(92dvh, 1040px);
+        width: min(90vw, 520px);
+        height: min(94dvh, 960px);
       }
       .aura-grid {
-        max-width: 380px;
+        width: min(86%, 38vh);
+        max-width: 350px;
       }
       .blue-frame {
-        max-width: 420px;
+        width: min(86%, 44vh);
+        max-width: 390px;
       }
     }
 
-    /* Short landscape screens (phones in landscape / compact notebooks) */
-    @media (orientation: landscape) and (max-height: 620px) {
+    /* Compact-height laptops & 125%-150% DPI scaled desktop browsers */
+    @media (max-height: 740px) and (orientation: landscape) {
       .kiosk {
-        width: min(96vw, 720px);
+        height: 96dvh;
+        padding: 10px 18px;
+      }
+      .rupay-logo {
+        width: clamp(92px, 13vh, 128px);
+      }
+      .subtitle-serif {
+        font-size: clamp(0.88rem, 2vh, 1.15rem);
+      }
+      .subtitle-script {
+        font-size: clamp(1.25rem, 3vh, 1.75rem);
+      }
+      .aura-grid {
+        width: min(84%, 34vh);
+        gap: 6px 12px;
+      }
+      .blue-frame {
+        width: min(82%, 39vh);
+      }
+    }
+
+    /* Large tablets, vertical kiosks & high-res displays (iPad Pro, 1080x1920 / 4K touchscreens) */
+    @media (min-width: 768px) and (min-height: 920px) {
+      .kiosk {
+        width: min(88vw, 580px);
+        height: min(92dvh, 1080px);
+      }
+      .aura-grid {
+        width: min(86%, 38vh);
+        max-width: 400px;
+      }
+      .blue-frame {
+        width: min(86%, 44vh);
+        max-width: 440px;
+      }
+    }
+
+    /* Short landscape screens (phones in landscape / compact notebooks <= 580px tall) */
+    @media (orientation: landscape) and (max-height: 580px) {
+      .kiosk {
+        width: min(96vw, 760px);
         height: 96dvh;
         min-height: 0;
-        padding: 10px 20px;
+        padding: 8px 18px;
       }
       .aura-grid {
         grid-template-columns: repeat(3, 1fr);
-        width: min(92%, 75vh);
-        max-width: 440px;
-        gap: 8px 14px;
+        width: min(92%, 78vh);
+        max-width: 460px;
+        gap: 6px 12px;
       }
       .blue-frame {
-        width: min(50%, 38vh);
+        width: min(48%, 37vh);
+      }
+      .shutter-btn {
+        width: 44px;
+        height: 44px;
       }
     }
 
