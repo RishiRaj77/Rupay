@@ -1,0 +1,1745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RuPay — Discover Your Aura</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+      width: 100%;
+    }
+
+    body {
+      font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+      background: #070b14;
+      color: #ffffff;
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: clamp(0px, 1.5vmin, 16px);
+      user-select: none;
+      overflow-x: hidden;
+    }
+
+    /* Responsive Kiosk Container adapting to mobile, tablet, laptop, desktop & vertical kiosks */
+    .kiosk {
+      position: relative;
+      width: min(100%, 480px);
+      height: min(100dvh - clamp(0px, 3vmin, 32px), 900px);
+      min-height: 500px;
+      border-radius: clamp(0px, 2vmin, 20px);
+      overflow: hidden;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65);
+      background:
+        radial-gradient(circle at 18% 12%, #063072 0%, transparent 48%),
+        radial-gradient(circle at 85% 22%, #2b67ec 0%, transparent 45%),
+        radial-gradient(circle at 20% 78%, #8c4fd5 0%, transparent 50%),
+        radial-gradient(circle at 88% 92%, #ff5510 0%, #f25a67 42%, transparent 72%),
+        linear-gradient(155deg, #042b69 0%, #1d5be0 34%, #8252d6 66%, #fc5c23 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: clamp(14px, 3vh, 32px) clamp(14px, 4vw, 28px);
+    }
+
+    /* Background white line-art doodles */
+    .doodles {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.85;
+    }
+
+    .screen {
+      position: relative;
+      z-index: 1;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      flex: 1;
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      gap: clamp(6px, 1.4vh, 16px);
+      animation: fade 0.2s ease-out;
+    }
+
+    .screen.active {
+      display: flex;
+    }
+
+    @keyframes fade {
+      from { opacity: 0; transform: scale(0.985); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* Top Brand Headers */
+    .top-brand {
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .rupay-logo {
+      display: inline-block;
+      width: clamp(112px, 16vh, 152px);
+      height: auto;
+      object-fit: contain;
+      filter: drop-shadow(0 0 1.5px rgba(255, 255, 255, 0.9)) drop-shadow(0 2px 8px rgba(255, 255, 255, 0.45));
+    }
+
+    .subtitle-serif {
+      font-family: Georgia, "Times New Roman", Times, serif;
+      font-size: clamp(1rem, 2.4vh, 1.4rem);
+      font-weight: 400;
+      color: #ffffff;
+      letter-spacing: 0.4px;
+      margin-top: 2px;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    }
+
+    .subtitle-script {
+      font-family: "Brush Script MT", "Segoe Script", "Lucida Handwriting", cursive;
+      font-size: clamp(1.5rem, 3.6vh, 2.2rem);
+      line-height: 1.05;
+      color: #ffffff;
+      margin-top: -2px;
+      transform: rotate(-3deg);
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Screen 1: 2x3 Aura Grid scaled dynamically to fit both height & width */
+    .aura-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: clamp(8px, 1.6vh, 16px) clamp(12px, 3vw, 24px);
+      width: min(86%, 36vh);
+      max-width: 320px;
+      margin: auto;
+      flex-shrink: 1;
+      min-height: 0;
+    }
+
+    .aura-card {
+      position: relative;
+      aspect-ratio: 50 / 63;
+      width: 100%;
+      background: #0a1022;
+      border: clamp(2px, 0.4vmin, 3.5px) solid #091224;
+      border-bottom: clamp(2.5px, 0.5vmin, 4px) solid #1e62d0;
+      border-radius: 4px;
+      overflow: hidden;
+      cursor: pointer;
+      padding: 0;
+      box-shadow: 0 8px 18px rgba(5, 15, 40, 0.45);
+      transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+    }
+
+    .aura-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .aura-card-label {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 14px 4px 5px;
+      background: linear-gradient(0deg, rgba(4, 12, 30, 0.9) 0%, rgba(4, 12, 30, 0.55) 65%, transparent 100%);
+      color: #ffffff;
+      font-size: clamp(0.56rem, 1.15vh, 0.68rem);
+      font-weight: 600;
+      letter-spacing: 0.2px;
+      line-height: 1.15;
+      text-align: center;
+      pointer-events: none;
+    }
+
+    .aura-card:hover {
+      transform: translateY(-3px) scale(1.03);
+      border-color: #ffffff;
+      box-shadow: 0 0 18px rgba(255, 255, 255, 0.55), 0 10px 22px rgba(5, 15, 40, 0.6);
+    }
+
+    /* Glossy 3D Blue Pill Buttons matching reference */
+    .glossy-btn {
+      appearance: none;
+      border: 1.5px solid rgba(120, 190, 255, 0.65);
+      border-radius: 999px;
+      background: radial-gradient(circle at 50% 25%, #2581ff 0%, #0a46a6 58%, #041a47 100%);
+      box-shadow:
+        0 6px 16px rgba(4, 18, 54, 0.55),
+        inset 0 2px 4px rgba(255, 255, 255, 0.45),
+        inset 0 -3px 6px rgba(2, 10, 32, 0.8);
+      color: #ffffff;
+      font-weight: 600;
+      font-size: clamp(0.8rem, 1.8vh, 0.98rem);
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      padding: clamp(8px, 1.4vh, 13px) clamp(20px, 4vw, 32px);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      flex-shrink: 0;
+      transition: transform 0.12s ease, filter 0.12s ease;
+    }
+
+    .glossy-btn:hover {
+      filter: brightness(1.12);
+      transform: translateY(-1px);
+    }
+
+    .glossy-btn:active {
+      transform: translateY(1px);
+    }
+
+    .glossy-btn-sm {
+      font-size: clamp(0.66rem, 1.4vh, 0.76rem);
+      padding: clamp(6px, 1vh, 9px) clamp(11px, 2.4vw, 17px);
+      letter-spacing: 0.8px;
+    }
+
+    /* Circular Shutter Button */
+    .shutter-btn {
+      width: clamp(48px, 7.5vh, 66px);
+      height: clamp(48px, 7.5vh, 66px);
+      border-radius: 50%;
+      border: 2px solid rgba(145, 205, 255, 0.85);
+      background: radial-gradient(circle at 50% 30%, #2f8fff 0%, #0b4db5 60%, #041a47 100%);
+      box-shadow:
+        0 0 0 4px rgba(10, 42, 105, 0.55),
+        0 8px 20px rgba(4, 18, 54, 0.65),
+        inset 0 2px 5px rgba(255, 255, 255, 0.55);
+      color: #ffffff;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: transform 0.12s ease, filter 0.12s ease;
+    }
+
+    .shutter-btn:hover {
+      filter: brightness(1.12);
+      transform: scale(1.05);
+    }
+
+    /* Metallic Blue Portrait Frame (Screen 2 & 3) scaled by both width and viewport height */
+    .blue-frame {
+      width: min(88%, 42vh);
+      max-width: 360px;
+      aspect-ratio: 212 / 295;
+      padding: clamp(7px, 1.2vmin, 12px);
+      background: linear-gradient(180deg, #041330 0%, #0d439c 45%, #1d6ee0 78%, #072152 100%);
+      box-shadow:
+        0 14px 32px rgba(4, 14, 38, 0.65),
+        inset 0 1px 2px rgba(255, 255, 255, 0.35);
+      position: relative;
+      margin: auto;
+      flex-shrink: 1;
+      min-height: 0;
+    }
+
+    .viewport-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: #12131a;
+      overflow: hidden;
+    }
+
+    #cameraVideo,
+    #stageResultCanvas {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    #cameraVideo {
+      transform: scaleX(-1);
+      background: #080d1a;
+    }
+
+    #auraLiveOverlay {
+      display: none;
+    }
+
+    .cam-status {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: rgba(6, 14, 34, 0.82);
+      color: #ffffff;
+      font-size: clamp(0.75rem, 1.6vh, 0.9rem);
+      text-align: center;
+      padding: 16px;
+      z-index: 3;
+    }
+
+    .cam-status.hidden {
+      display: none;
+    }
+
+    #aiLoadingOverlay {
+      background: rgba(5, 8, 20, 0.96);
+    }
+
+    .loading-spinner {
+      width: 38px;
+      height: 38px;
+      border: 3px solid rgba(142, 197, 255, 0.25);
+      border-top-color: #60a5fa;
+      border-radius: 50%;
+      animation: auraSpin 0.85s linear infinite;
+    }
+
+    @keyframes auraSpin {
+      to { transform: rotate(360deg); }
+    }
+
+    .result-actions.hidden {
+      display: none !important;
+    }
+
+    .camera-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(8px, 2vw, 16px);
+      width: 100%;
+      flex-shrink: 0;
+    }
+
+    .result-actions {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: clamp(6px, 1.2vh, 12px);
+      width: 100%;
+      flex-shrink: 0;
+    }
+
+    .result-sub-actions {
+      display: flex;
+      gap: clamp(5px, 1.2vw, 10px);
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .toast-msg {
+      font-size: 0.74rem;
+      color: #fff;
+      background: rgba(4, 24, 66, 0.72);
+      padding: 3px 12px;
+      border-radius: 999px;
+      min-height: 20px;
+      display: inline-flex;
+      align-items: center;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .toast-msg.visible {
+      opacity: 1;
+    }
+
+    /* Modal for QR Code & Black-Framed Photo Output Preview */
+    .modal-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(4, 12, 30, 0.88);
+      backdrop-filter: blur(4px);
+      z-index: 20;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      gap: 10px;
+      text-align: center;
+    }
+
+    .modal-backdrop.active {
+      display: flex;
+    }
+
+    .modal-card {
+      background: #0d1629;
+      border: 1.5px solid rgba(120, 190, 255, 0.45);
+      border-radius: 14px;
+      padding: 16px;
+      width: 100%;
+      max-width: 310px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+    }
+
+    #qrCanvas {
+      background: #ffffff;
+      padding: 8px;
+      border-radius: 8px;
+      max-width: 55vmin;
+      max-height: 55vmin;
+    }
+
+    .polaroid-stage {
+      width: min(88%, 41vh);
+      max-width: 350px;
+      aspect-ratio: 520 / 760;
+      position: relative;
+      margin: auto;
+      flex-shrink: 1;
+      min-height: 0;
+      background: #111214;
+      border-radius: 3px;
+      box-shadow: 0 16px 38px rgba(0, 0, 0, 0.78);
+      overflow: hidden;
+    }
+
+    #outputPolaroidCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    #modalPolaroidCanvas {
+      width: auto;
+      max-width: min(76vw, 260px);
+      max-height: 68dvh;
+      height: auto;
+      border-radius: 2px;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.8);
+    }
+
+    /* Mobile devices: full-screen edge-to-edge native kiosk feel */
+    @media (max-width: 540px) {
+      body {
+        padding: 0;
+      }
+      .kiosk {
+        width: 100vw;
+        height: 100dvh;
+        max-width: none;
+        border-radius: 0;
+      }
+    }
+
+    /* Large tablets & vertical kiosks (iPad Pro, 1080x1920 touchscreens) */
+    @media (min-width: 768px) and (min-height: 900px) {
+      .kiosk {
+        width: min(88vw, 560px);
+        height: min(92dvh, 1040px);
+      }
+      .aura-grid {
+        max-width: 380px;
+      }
+      .blue-frame {
+        max-width: 420px;
+      }
+    }
+
+    /* Short landscape screens (phones in landscape / compact notebooks) */
+    @media (orientation: landscape) and (max-height: 620px) {
+      .kiosk {
+        width: min(96vw, 720px);
+        height: 96dvh;
+        min-height: 0;
+        padding: 10px 20px;
+      }
+      .aura-grid {
+        grid-template-columns: repeat(3, 1fr);
+        width: min(92%, 75vh);
+        max-width: 440px;
+        gap: 8px 14px;
+      }
+      .blue-frame {
+        width: min(50%, 38vh);
+      }
+    }
+
+    /* Print only the Black-Framed Photo Output (Panel 4) */
+    #printMount {
+      display: none;
+    }
+
+    @media print {
+      body {
+        background: #ffffff;
+        padding: 0;
+        margin: 0;
+      }
+      .kiosk {
+        display: none !important;
+      }
+      #printMount {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        width: 100vw;
+        height: 100vh;
+      }
+      #printMount img {
+        max-width: 92vw;
+        max-height: 94vh;
+        object-fit: contain;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="kiosk">
+    <!-- Subtle White Hand-Drawn Party / Lifestyle Doodles matching the reference -->
+    <svg class="doodles" viewBox="0 0 420 760" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Top-left sunglasses -->
+      <g stroke="#ffffff" stroke-width="1.5" opacity="0.75" transform="translate(26, 130) rotate(-18)">
+        <rect x="0" y="6" width="16" height="11" rx="3" />
+        <rect x="21" y="6" width="16" height="11" rx="3" />
+        <path d="M16 10h5M0 9L-4 2M37 9l4-7" />
+      </g>
+      <!-- Top-right prism triangle -->
+      <g stroke="#ffffff" stroke-width="1.4" opacity="0.75" transform="translate(362, 132) rotate(14)">
+        <polygon points="10,0 22,22 0,18" />
+        <line x1="12" y1="3" x2="18" y2="20" />
+      </g>
+      <!-- Mid-right crown -->
+      <g stroke="#ffffff" stroke-width="1.5" opacity="0.8" transform="translate(356, 302) rotate(22)">
+        <polygon points="0,16 4,3 11,11 18,2 24,11 30,4 32,16" />
+      </g>
+      <!-- Mid-left 4-point star & disco ball -->
+      <path d="M26 365 L30 375 L40 379 L30 383 L26 393 L22 383 L12 379 L22 375 Z" stroke="#ffffff" stroke-width="1.5" opacity="0.85" />
+      <g stroke="#ffffff" stroke-width="1.3" opacity="0.75" transform="translate(42, 368)">
+        <circle cx="14" cy="14" r="13" />
+        <ellipse cx="14" cy="14" rx="6" ry="13" />
+        <line x1="1" y1="14" x2="27" y2="14" />
+        <line x1="3" y1="8" x2="25" y2="8" />
+        <line x1="3" y1="20" x2="25" y2="20" />
+      </g>
+      <!-- Center sparkles -->
+      <path d="M206 276 L208 282 L214 284 L208 286 L206 292 L204 286 L198 284 L204 282 Z" stroke="#ffffff" stroke-width="1.3" opacity="0.8" />
+      <path d="M366 432 L369 440 L377 443 L369 446 L366 454 L363 446 L355 443 L363 440 Z" stroke="#ffffff" stroke-width="1.4" opacity="0.8" />
+      <!-- Lower-left microphone -->
+      <g stroke="#ffffff" stroke-width="1.4" opacity="0.75" transform="translate(38, 492) rotate(-32)">
+        <rect x="4" y="0" width="10" height="15" rx="5" />
+        <line x1="3" y1="7" x2="15" y2="7" />
+        <polygon points="6,15 12,15 10,32 8,32" />
+      </g>
+      <!-- Lower-left + LOVER + bracelet text -->
+      <text x="26" y="655" fill="#ffffff" opacity="0.75" font-size="9" font-family="monospace" letter-spacing="1.5">✦ LOVER ✦</text>
+      <!-- Lower-right ticket stub -->
+      <g stroke="#ffffff" stroke-width="1.4" opacity="0.75" transform="translate(345, 595) rotate(-18)">
+        <rect x="0" y="0" width="28" height="44" rx="2" />
+        <line x1="6" y1="8" x2="22" y2="8" />
+        <line x1="6" y1="36" x2="22" y2="36" />
+      </g>
+    </svg>
+
+    <!-- ==================== SCREEN 1: DISCOVER YOUR AURA (6 AVATARS) ==================== -->
+    <section id="screen1" class="screen active">
+      <div class="top-brand">
+        <img class="rupay-logo" src="rupay-logo.png?v=2" alt="RuPay" />
+        <div class="subtitle-serif">Discover Your Aura</div>
+      </div>
+
+      <div class="aura-grid" id="auraGrid"></div>
+
+      <button type="button" class="glossy-btn" id="btnStart">
+        <span>START</span>
+        <span style="font-size:1.1rem;line-height:1;">→</span>
+      </button>
+    </section>
+
+    <!-- ==================== SCREEN 2: CAMERA PREVIEW & CAPTURE ==================== -->
+    <section id="screen2" class="screen">
+      <div class="top-brand" style="margin-top:8px;">
+        <img class="rupay-logo" src="rupay-logo.png?v=2" alt="RuPay" />
+      </div>
+
+      <div class="blue-frame">
+        <div class="viewport-inner">
+          <video id="cameraVideo" autoplay playsinline muted></video>
+          <canvas id="auraLiveOverlay" width="424" height="590"></canvas>
+          <div class="cam-status hidden" id="camStatus">
+            <span id="camStatusText">Opening camera...</span>
+            <button type="button" class="glossy-btn glossy-btn-sm" id="btnRetryCam" style="display:none;">ALLOW / RETRY CAMERA</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="camera-bar">
+        <button type="button" class="glossy-btn glossy-btn-sm" id="btnRetakeCam">
+          <span>↻ RETAKE</span>
+        </button>
+
+        <button type="button" class="shutter-btn" id="btnCapture" aria-label="Capture Photo" title="Capture Photo">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+            <circle cx="12" cy="13" r="4"/>
+          </svg>
+        </button>
+
+        <button type="button" class="glossy-btn glossy-btn-sm" id="btnSubmitCam">
+          <span>➤ SUBMIT</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ==================== SCREEN 3: RESULT (PRINT, SHARE, QR, PHOTO OUTPUT) ==================== -->
+    <section id="screen3" class="screen">
+      <div class="top-brand">
+        <img class="rupay-logo" src="rupay-logo.png?v=2" alt="RuPay" />
+        <div class="subtitle-script">Own the edge</div>
+      </div>
+
+      <div class="polaroid-stage">
+        <canvas id="stageResultCanvas" width="424" height="590" style="display:none;"></canvas>
+        <canvas id="outputPolaroidCanvas" width="520" height="760"></canvas>
+        <div class="cam-status hidden" id="aiLoadingOverlay">
+          <div class="loading-spinner"></div>
+          <span id="aiLoadingText">Generating...</span>
+        </div>
+      </div>
+
+      <div class="result-actions hidden" id="resultActions">
+        <!-- Primary Print Button matching Screen 3 mockup -->
+        <button type="button" class="glossy-btn" id="btnPrint" style="min-width:175px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8ec5ff" stroke-width="2">
+            <polyline points="6 9 6 2 18 2 18 9"/>
+            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+            <rect x="6" y="14" width="12" height="8"/>
+          </svg>
+          <span>PRINT</span>
+        </button>
+
+        <!-- Share, QR, Photo Output Card, Retake -->
+        <div class="result-sub-actions">
+          <button type="button" class="glossy-btn glossy-btn-sm" id="btnShare">SHARE</button>
+          <button type="button" class="glossy-btn glossy-btn-sm" id="btnQr">QR CODE</button>
+          <button type="button" class="glossy-btn glossy-btn-sm" id="btnViewCard">PHOTO OUTPUT</button>
+          <button type="button" class="glossy-btn glossy-btn-sm" id="btnRestart">↻ NEW</button>
+        </div>
+
+        <div class="toast-msg" id="toastMsg"></div>
+      </div>
+    </section>
+
+    <!-- QR & Photo Output Modal -->
+    <div class="modal-backdrop" id="modalBackdrop">
+      <div class="modal-card" id="qrModalBox" style="display:none;">
+        <div style="font-weight:700;font-size:0.95rem;">Scan QR for Photo Pass</div>
+        <canvas id="qrCanvas" width="176" height="176"></canvas>
+        <div id="qrLabel" style="font-size:0.75rem;color:#94a3b8;"></div>
+        <button type="button" class="glossy-btn glossy-btn-sm" id="btnDownloadFromQr">DOWNLOAD PHOTO</button>
+      </div>
+
+      <div class="modal-card" id="cardModalBox" style="display:none;background:transparent;border:none;box-shadow:none;padding:0;">
+        <canvas id="modalPolaroidCanvas" width="520" height="760"></canvas>
+        <div style="font-size:0.8rem;color:#cbd5e1;font-weight:600;">Photo Output</div>
+      </div>
+
+      <button type="button" class="glossy-btn glossy-btn-sm" id="btnCloseModal">CLOSE</button>
+    </div>
+  </div>
+
+  <!-- Hidden mount for clean full-page printing of the black-bordered Photo Output -->
+  <div id="printMount">
+    <img id="printImg" alt="RuPay Photo Output" />
+  </div>
+
+  <script>
+    // 6 Authentic Auracam 6000 Kirlian Cloud Filters matching the 6 reference Polaroids
+    const AURAS = [
+      {
+        id: "magenta-retro-haze",
+        name: "Magenta Retro Haze",
+        thumb: "avatar1.jpg",
+        cropBorder: true,
+        preserveClothing: true,
+        cornerDark: 0.92,
+        blobs: [
+          { x: 0.46, y: 0.24, rx: 0.44, ry: 0.28, color: "#ec1b9b", alpha: 0.96 },
+          { x: 0.22, y: 0.46, rx: 0.34, ry: 0.38, color: "#d91680", alpha: 0.94 },
+          { x: 0.78, y: 0.36, rx: 0.32, ry: 0.30, color: "#f43fb2", alpha: 0.94 },
+          { x: 0.52, y: 0.58, rx: 0.28, ry: 0.24, color: "#c084fc", alpha: 0.88 },
+          { x: 0.80, y: 0.78, rx: 0.30, ry: 0.26, color: "#fde047", alpha: 0.92 },
+          { x: 0.68, y: 0.74, rx: 0.26, ry: 0.22, color: "#fbcfe8", alpha: 0.88 }
+        ]
+      },
+      {
+        id: "vintage-magenta-coral",
+        name: "Vintage Magenta Coral",
+        thumb: "avatar2.jpg",
+        cropBorder: true,
+        preserveClothing: true,
+        cornerDark: 0.94,
+        blobs: [
+          { x: 0.36, y: 0.28, rx: 0.38, ry: 0.26, color: "#e845c8", alpha: 0.95 },
+          { x: 0.24, y: 0.42, rx: 0.32, ry: 0.26, color: "#d926a8", alpha: 0.92 },
+          { x: 0.68, y: 0.24, rx: 0.34, ry: 0.24, color: "#e04832", alpha: 0.92 },
+          { x: 0.78, y: 0.40, rx: 0.28, ry: 0.24, color: "#f26b38", alpha: 0.90 },
+          { x: 0.20, y: 0.72, rx: 0.30, ry: 0.28, color: "#4f46e5", alpha: 0.94 },
+          { x: 0.34, y: 0.76, rx: 0.26, ry: 0.24, color: "#7c3aed", alpha: 0.88 },
+          { x: 0.80, y: 0.74, rx: 0.32, ry: 0.30, color: "#fbbf24", alpha: 0.95 },
+          { x: 0.42, y: 0.90, rx: 0.22, ry: 0.16, color: "#06b6d4", alpha: 0.82 }
+        ]
+      },
+      {
+        id: "cobalt-violet-vintage",
+        name: "Cobalt Violet Vintage",
+        thumb: "avatar3.jpg",
+        cropBorder: true,
+        preserveClothing: true,
+        cornerDark: 0.96,
+        blobs: [
+          { x: 0.28, y: 0.26, rx: 0.36, ry: 0.30, color: "#0824eb", alpha: 0.96 },
+          { x: 0.22, y: 0.62, rx: 0.30, ry: 0.34, color: "#0f38f5", alpha: 0.94 },
+          { x: 0.68, y: 0.28, rx: 0.34, ry: 0.28, color: "#6d28d9", alpha: 0.95 },
+          { x: 0.76, y: 0.58, rx: 0.30, ry: 0.32, color: "#a21caf", alpha: 0.94 },
+          { x: 0.50, y: 0.44, rx: 0.28, ry: 0.22, color: "#7c3aed", alpha: 0.88 }
+        ]
+      },
+      {
+        id: "retro-color-light",
+        name: "Retro Color-Light",
+        thumb: "avatar4.jpg",
+        cropBorder: true,
+        preserveClothing: true,
+        cornerDark: 0.94,
+        blobs: [
+          { x: 0.20, y: 0.44, rx: 0.36, ry: 0.42, color: "#dc1428", alpha: 0.96 },
+          { x: 0.34, y: 0.24, rx: 0.30, ry: 0.24, color: "#ec266a", alpha: 0.92 },
+          { x: 0.64, y: 0.30, rx: 0.34, ry: 0.26, color: "#9333ea", alpha: 0.94 },
+          { x: 0.80, y: 0.28, rx: 0.26, ry: 0.24, color: "#2563eb", alpha: 0.92 },
+          { x: 0.82, y: 0.78, rx: 0.32, ry: 0.28, color: "#f59e0b", alpha: 0.95 },
+          { x: 0.16, y: 0.82, rx: 0.28, ry: 0.24, color: "#e11d48", alpha: 0.90 },
+          { x: 0.50, y: 0.68, rx: 0.20, ry: 0.16, color: "#a78bfa", alpha: 0.84 }
+        ]
+      },
+      {
+        id: "cobalt-emerald-bloom",
+        name: "Cobalt Emerald Bloom",
+        thumb: "avatar5.jpg",
+        cropBorder: true,
+        cornerDark: 0.96,
+        blobs: [
+          { x: 0.48, y: 0.19, rx: 0.40, ry: 0.23, color: "#0b24f5", alpha: 0.96 },
+          { x: 0.24, y: 0.28, rx: 0.30, ry: 0.24, color: "#071ed1", alpha: 0.94 },
+          { x: 0.76, y: 0.27, rx: 0.30, ry: 0.24, color: "#0a28eb", alpha: 0.94 },
+          { x: 0.42, y: 0.38, rx: 0.28, ry: 0.20, color: "#0d9488", alpha: 0.90 },
+          { x: 0.76, y: 0.62, rx: 0.28, ry: 0.28, color: "#15803d", alpha: 0.90 },
+          { x: 0.24, y: 0.72, rx: 0.30, ry: 0.26, color: "#9333ea", alpha: 0.94 },
+          { x: 0.22, y: 0.78, rx: 0.22, ry: 0.20, color: "#c084fc", alpha: 0.88 },
+          { x: 0.56, y: 0.88, rx: 0.24, ry: 0.18, color: "#b91c1c", alpha: 0.84 }
+        ]
+      },
+      {
+        id: "amber-magenta-halo",
+        name: "Amber Magenta Halo",
+        thumb: "avatar6.jpg",
+        cropBorder: true,
+        cornerDark: 0.96,
+        blobs: [
+          { x: 0.50, y: 0.19, rx: 0.38, ry: 0.22, color: "#d96b18", alpha: 0.95 },
+          { x: 0.28, y: 0.24, rx: 0.30, ry: 0.22, color: "#c24810", alpha: 0.92 },
+          { x: 0.72, y: 0.24, rx: 0.30, ry: 0.22, color: "#e07b1e", alpha: 0.92 },
+          { x: 0.26, y: 0.44, rx: 0.28, ry: 0.22, color: "#9d176e", alpha: 0.92 },
+          { x: 0.74, y: 0.44, rx: 0.28, ry: 0.22, color: "#8e1b78", alpha: 0.92 },
+          { x: 0.50, y: 0.35, rx: 0.32, ry: 0.18, color: "#6b21a8", alpha: 0.88 },
+          { x: 0.22, y: 0.72, rx: 0.24, ry: 0.22, color: "#0e4f58", alpha: 0.78 }
+        ]
+      }
+    ];
+
+    let selectedAura = AURAS[5];
+    let mediaStream = null;
+    let usingWebcam = false;
+    let isFrozen = false;
+    let passId = "";
+
+    // Offscreen canvases storing the unmodified raw camera frame and Auracam 6000 cloud/silhouette buffers
+    const rawCaptureCanvas = document.createElement("canvas");
+    rawCaptureCanvas.width = 424;
+    rawCaptureCanvas.height = 590;
+    const faceMaskCanvas = document.createElement("canvas");
+    faceMaskCanvas.width = 424;
+    faceMaskCanvas.height = 590;
+    const cloudCanvas = document.createElement("canvas");
+    cloudCanvas.width = 424;
+    cloudCanvas.height = 590;
+    const silhouetteMaskCanvas = document.createElement("canvas");
+    silhouetteMaskCanvas.width = 424;
+    silhouetteMaskCanvas.height = 590;
+    const trackCanvas = document.createElement("canvas");
+    trackCanvas.width = 84;
+    trackCanvas.height = 118;
+    const skinMaskCanvas = document.createElement("canvas");
+    skinMaskCanvas.width = 84;
+    skinMaskCanvas.height = 118;
+
+    // Dynamic tracked face position & size so the clear face shield follows the user anywhere on screen
+    const faceState = { x: 0.5, y: 0.47, rx: 0.17, ry: 0.21 };
+    let liveTrackRaf = null;
+    let nativeFaceDetector = null;
+    if ("FaceDetector" in window) {
+      try {
+        nativeFaceDetector = new window.FaceDetector({ fastMode: true, maxDetectedFaces: 1 });
+      } catch (_) {
+        nativeFaceDetector = null;
+      }
+    }
+
+    const screen1 = document.getElementById("screen1");
+    const screen2 = document.getElementById("screen2");
+    const screen3 = document.getElementById("screen3");
+    const auraGrid = document.getElementById("auraGrid");
+    const cameraVideo = document.getElementById("cameraVideo");
+    const auraLiveOverlay = document.getElementById("auraLiveOverlay");
+    const camStatus = document.getElementById("camStatus");
+    const camStatusText = document.getElementById("camStatusText");
+    const btnRetryCam = document.getElementById("btnRetryCam");
+    const stageResultCanvas = document.getElementById("stageResultCanvas");
+    const aiLoadingOverlay = document.getElementById("aiLoadingOverlay");
+    const aiLoadingText = document.getElementById("aiLoadingText");
+    const resultActions = document.getElementById("resultActions");
+    const outputPolaroidCanvas = document.getElementById("outputPolaroidCanvas");
+    const modalBackdrop = document.getElementById("modalBackdrop");
+    const qrModalBox = document.getElementById("qrModalBox");
+    const cardModalBox = document.getElementById("cardModalBox");
+    const qrCanvas = document.getElementById("qrCanvas");
+    const qrLabel = document.getElementById("qrLabel");
+    const toastMsg = document.getElementById("toastMsg");
+    const printImg = document.getElementById("printImg");
+
+    // Populate the 6 Aura cards
+    function renderAuraGrid() {
+      auraGrid.innerHTML = "";
+      AURAS.forEach((aura) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "aura-card";
+        btn.title = aura.name;
+        const imgStyle = aura.cropBorder ? ' style="transform: scale(1.16);"' : "";
+        btn.innerHTML = `<img src="${aura.thumb}?v=8"${imgStyle} alt="${aura.name}" /><span class="aura-card-label">${aura.name}</span>`;
+        btn.addEventListener("click", () => {
+          selectedAura = aura;
+          openCameraPreview();
+        });
+        auraGrid.appendChild(btn);
+      });
+    }
+    renderAuraGrid();
+
+    function showScreen(num) {
+      screen1.classList.toggle("active", num === 1);
+      screen2.classList.toggle("active", num === 2);
+      screen3.classList.toggle("active", num === 3);
+    }
+
+    function showToast(text) {
+      toastMsg.textContent = text;
+      toastMsg.classList.add("visible");
+      setTimeout(() => toastMsg.classList.remove("visible"), 2800);
+    }
+
+    // Real-time YCbCr + RGB human skin & face cluster tracker (follows user anywhere: left, right, center)
+    function updateFaceTracking(sourceEl, isMirrored, snapImmediately) {
+      const tw = trackCanvas.width;
+      const th = trackCanvas.height;
+      const tCtx = trackCanvas.getContext("2d", { willReadFrequently: true });
+      const sw = sourceEl.videoWidth || sourceEl.width || 0;
+      const sh = sourceEl.videoHeight || sourceEl.height || 0;
+      if (!sw || !sh) return;
+
+      tCtx.save();
+      tCtx.clearRect(0, 0, tw, th);
+      if (isMirrored) {
+        tCtx.translate(tw, 0);
+        tCtx.scale(-1, 1);
+      }
+      const scale = Math.max(tw / sw, th / sh);
+      const dw = sw * scale;
+      const dh = sh * scale;
+      tCtx.drawImage(sourceEl, (tw - dw) / 2, (th - dh) / 2, dw, dh);
+      tCtx.restore();
+
+      const imgData = tCtx.getImageData(0, 0, tw, th);
+      const data = imgData.data;
+      const sCtx = skinMaskCanvas.getContext("2d");
+      const maskImg = sCtx.createImageData(tw, th);
+      const mData = maskImg.data;
+
+      // Pass 1: find all skin-tone pixels in portrait head/neck region (rejects grey chair, white wall, and neon orange shirt)
+      let sumX = 0;
+      let sumY = 0;
+      let sumW = 0;
+      const skinFlags = new Uint8Array(tw * th);
+
+      const yMin = Math.floor(th * 0.06);
+      const yMax = Math.floor(th * 0.80);
+      for (let y = yMin; y < yMax; y++) {
+        for (let x = 0; x < tw; x++) {
+          const idx = (y * tw + x) * 4;
+          const r = data[idx];
+          const g = data[idx + 1];
+          const b = data[idx + 2];
+          if (r > 58 && g > 36 && b > 24 && r > g && g >= b - 10) {
+            const rb = r - b;
+            const gr = g / r;
+            if (rb >= 15 && rb <= 112 && gr >= 0.55 && gr <= 0.93) {
+              const cb = 128 - 0.168736 * r - 0.331264 * g + 0.5 * b;
+              const cr = 128 + 0.5 * r - 0.418688 * g - 0.081312 * b;
+              if (cb >= 78 && cb <= 128 && cr >= 133 && cr <= 174) {
+                skinFlags[y * tw + x] = 1;
+                // Weight upper/middle portrait skin pixels higher to lock onto the face rather than lower arms
+                const wy = y < th * 0.66 ? 1.5 : 0.6;
+                sumX += (x / tw) * wy;
+                sumY += (y / th) * wy;
+                sumW += wy;
+              }
+            }
+          }
+        }
+      }
+
+      if (sumW > 18) {
+        const mx = sumX / sumW;
+        const my = sumY / sumW;
+
+        // Pass 2: refine centroid & spread around the primary face cluster and build per-pixel skin shield mask
+        let cxSum = 0;
+        let cySum = 0;
+        let cCount = 0;
+        let varX = 0;
+        let varY = 0;
+
+        for (let y = yMin; y < yMax; y++) {
+          const ny = y / th;
+          for (let x = 0; x < tw; x++) {
+            if (!skinFlags[y * tw + x]) continue;
+            const nx = x / tw;
+            const dx = nx - mx;
+            const dy = ny - my;
+            if (dx * dx + dy * dy <= 0.14) {
+              cxSum += nx;
+              cySum += ny;
+              cCount++;
+              const mIdx = (y * tw + x) * 4;
+              mData[mIdx] = 0;
+              mData[mIdx + 1] = 0;
+              mData[mIdx + 2] = 0;
+              mData[mIdx + 3] = 255;
+            }
+          }
+        }
+
+        sCtx.putImageData(maskImg, 0, 0);
+
+        if (cCount > 12) {
+          const cx = cxSum / cCount;
+          const cy = Math.max(0.20, (cySum / cCount) - 0.02);
+          for (let y = yMin; y < yMax; y++) {
+            const ny = y / th;
+            for (let x = 0; x < tw; x++) {
+              if (!skinFlags[y * tw + x]) continue;
+              const nx = x / tw;
+              const dx = nx - cx;
+              const dy = ny - cy;
+              if (dx * dx + dy * dy <= 0.12) {
+                varX += dx * dx;
+                varY += dy * dy;
+              }
+            }
+          }
+          const stdX = Math.sqrt(varX / cCount);
+          const stdY = Math.sqrt(varY / cCount);
+          const targetRx = Math.max(0.135, Math.min(0.185, stdX * 2.05));
+          const targetRy = Math.max(0.165, Math.min(0.215, stdY * 2.15));
+          const lerp = snapImmediately ? 1 : 0.45;
+          faceState.x += (cx - faceState.x) * lerp;
+          faceState.y += (cy - faceState.y) * lerp;
+          faceState.rx += (targetRx - faceState.rx) * lerp;
+          faceState.ry += (targetRy - faceState.ry) * lerp;
+        }
+      }
+
+      // Optional hardware FaceDetector refinement when supported by browser
+      if (nativeFaceDetector && !updateFaceTracking._busy) {
+        updateFaceTracking._busy = true;
+        nativeFaceDetector
+          .detect(trackCanvas)
+          .then((faces) => {
+            if (faces && faces.length > 0) {
+              const box = faces[0].boundingBox;
+              const fx = (box.x + box.width * 0.5) / tw;
+              const fy = (box.y + box.height * 0.48) / th;
+              const frx = Math.max(0.135, Math.min(0.185, (box.width / tw) * 0.52));
+              const fry = Math.max(0.165, Math.min(0.215, (box.height / th) * 0.52));
+              faceState.x = fx;
+              faceState.y = fy;
+              faceState.rx = frx;
+              faceState.ry = fry;
+            }
+          })
+          .catch(() => {})
+          .finally(() => {
+            updateFaceTracking._busy = false;
+          });
+      }
+    }
+
+    // Renders the full, vivid Auracam 6000 color cloud dome on a pitch-black (#000000) studio background
+    function renderAuracamCloudField(w, h) {
+      if (cloudCanvas.width !== w) cloudCanvas.width = w;
+      if (cloudCanvas.height !== h) cloudCanvas.height = h;
+      const cCtx = cloudCanvas.getContext("2d");
+      const maxDim = Math.max(w, h);
+      const shiftX = (faceState.x - 0.5) * 0.32;
+      const shiftY = (faceState.y - 0.48) * 0.22;
+
+      // 1. 100% pure pitch-black studio background (#000000) covering the whole room/chair/wall
+      cCtx.save();
+      cCtx.globalCompositeOperation = "source-over";
+      cCtx.fillStyle = "#000000";
+      cCtx.fillRect(0, 0, w, h);
+
+      // 2. Large, rich Gaussian-blurred Aura dome & shoulder clouds filling 85% of the frame (matching reference Polaroids)
+      (selectedAura.blobs || []).forEach((b) => {
+        cCtx.save();
+        cCtx.filter = "blur(36px)";
+        const bx = b.x + shiftX;
+        const by = b.y + shiftY;
+        cCtx.translate(w * bx, h * by);
+        cCtx.scale(1, b.ry / b.rx);
+        const r = w * b.rx * 1.12;
+
+        // Rich saturated cloud body pass
+        cCtx.globalCompositeOperation = "source-over";
+        cCtx.globalAlpha = b.alpha * 0.90;
+        const g1 = cCtx.createRadialGradient(0, 0, r * 0.05, 0, 0, r);
+        g1.addColorStop(0, b.color);
+        g1.addColorStop(0.58, b.color);
+        g1.addColorStop(1, "rgba(0,0,0,0)");
+        cCtx.fillStyle = g1;
+        cCtx.beginPath();
+        cCtx.arc(0, 0, r, 0, Math.PI * 2);
+        cCtx.fill();
+
+        // Luminous Kirlian bloom pass
+        cCtx.globalCompositeOperation = "screen";
+        cCtx.globalAlpha = b.alpha * 0.52;
+        cCtx.fillStyle = g1;
+        cCtx.beginPath();
+        cCtx.arc(0, 0, r * 1.08, 0, Math.PI * 2);
+        cCtx.fill();
+        cCtx.restore();
+      });
+
+      // 3. Outer Polaroid corner darkening only (leaves the big upper Aura dome and lower shoulder clouds vivid & bright)
+      cCtx.globalCompositeOperation = "source-over";
+      const vig = cCtx.createRadialGradient(
+        w * (0.5 + shiftX * 0.5),
+        h * 0.48,
+        maxDim * 0.40,
+        w * 0.5,
+        h * 0.48,
+        maxDim * 0.66
+      );
+      vig.addColorStop(0, "rgba(0,0,0,0)");
+      vig.addColorStop(0.60, "rgba(0,0,0,0.42)");
+      vig.addColorStop(0.86, "rgba(0,0,0,0.88)");
+      vig.addColorStop(1, "rgba(0,0,0,1)");
+      cCtx.fillStyle = vig;
+      cCtx.fillRect(0, 0, w, h);
+
+      cCtx.restore();
+    }
+
+    // Builds a tight skin + inner-face shield (hides office chair behind ears and turns bright shirt into a dark Aura-lit silhouette)
+    function buildSilhouetteMask(w, h) {
+      if (silhouetteMaskCanvas.width !== w) silhouetteMaskCanvas.width = w;
+      if (silhouetteMaskCanvas.height !== h) silhouetteMaskCanvas.height = h;
+      const sCtx = silhouetteMaskCanvas.getContext("2d");
+      sCtx.clearRect(0, 0, w, h);
+
+      const fx = w * faceState.x;
+      const fy = h * faceState.y;
+      const frx = w * faceState.rx;
+      const fry = h * faceState.ry;
+
+      // 1. Subtle low-key silhouette for hair & shoulders so Aura clouds glow richly over hair & dark clothing (no chair bleed)
+      sCtx.save();
+      sCtx.filter = "blur(22px)";
+
+      // Low-key shoulders/chest (or higher clothing visibility when preserveClothing is set, with gentle color spill)
+      const shoulderAlpha = selectedAura.preserveClothing ? 0.56 : 0.16;
+      const hairAlpha = selectedAura.preserveClothing ? 0.42 : 0.28;
+      sCtx.fillStyle = `rgba(0,0,0,${shoulderAlpha})`;
+      sCtx.beginPath();
+      sCtx.ellipse(fx, fy + h * 0.38, frx * 1.45, h * 0.18, 0, 0, Math.PI * 2);
+      sCtx.fill();
+
+      // Top hair crown (lets glowing inner Aura light spill gently across the hair)
+      sCtx.fillStyle = `rgba(0,0,0,${hairAlpha})`;
+      sCtx.beginPath();
+      sCtx.ellipse(fx, fy - fry * 0.18, frx * 0.86, fry * 0.84, 0, 0, Math.PI * 2);
+      sCtx.fill();
+      sCtx.restore();
+
+      // 2. Per-pixel detected skin mask (protects actual face & neck skin at 100% while ignoring the grey office chair behind ears)
+      sCtx.save();
+      sCtx.filter = "blur(9px)";
+      sCtx.drawImage(skinMaskCanvas, 0, 0, w, h);
+      sCtx.drawImage(skinMaskCanvas, 0, 0, w, h);
+      sCtx.restore();
+
+      // 3. Tight feathered inner face shield (stops at cheekbones/jawline so zero office chair behind ears is exposed)
+      sCtx.save();
+      sCtx.filter = "blur(10px)";
+      sCtx.fillStyle = "rgba(0,0,0,1)";
+      sCtx.beginPath();
+      sCtx.ellipse(fx, fy + fry * 0.02, frx * 0.80, fry * 0.88, 0, 0, Math.PI * 2);
+      sCtx.fill();
+      sCtx.restore();
+
+      // 4. Pure solid 1.0 alpha core over eyes, eyebrows, nose, mouth, and beard (0% Aura effect on face)
+      sCtx.save();
+      sCtx.fillStyle = "rgba(0,0,0,1)";
+      sCtx.beginPath();
+      sCtx.ellipse(fx, fy + fry * 0.02, frx * 0.68, fry * 0.76, 0, 0, Math.PI * 2);
+      sCtx.fill();
+      sCtx.restore();
+    }
+
+    // Restores 100% untouched raw camera pixels over the face (no filter, no blur, no cloud wash on face)
+    function restoreOriginalFace(ctx, w, h) {
+      if (faceMaskCanvas.width !== w) faceMaskCanvas.width = w;
+      if (faceMaskCanvas.height !== h) faceMaskCanvas.height = h;
+      const mCtx = faceMaskCanvas.getContext("2d");
+      mCtx.clearRect(0, 0, w, h);
+
+      // Draw 100% unmodified raw camera frame
+      mCtx.save();
+      mCtx.globalCompositeOperation = "source-over";
+      mCtx.filter = "none";
+      mCtx.drawImage(rawCaptureCanvas, 0, 0, w, h);
+      mCtx.restore();
+
+      buildSilhouetteMask(w, h);
+      mCtx.globalCompositeOperation = "destination-in";
+      mCtx.drawImage(silhouetteMaskCanvas, 0, 0, w, h);
+
+      // Paint untouched face strictly on top as the final pass — no cloud wash drawn after this
+      ctx.save();
+      ctx.globalCompositeOperation = "source-over";
+      ctx.drawImage(faceMaskCanvas, 0, 0, w, h);
+      ctx.restore();
+    }
+
+    // Applies the Auracam 6000 Studio Silhouette + Gaussian Cloud Filter in a single clean pass (zero duplicate/ghost layering)
+    function paintAuraGlowOverlay(ctx, w, h, isLiveOverlay) {
+      renderAuracamCloudField(w, h);
+      buildSilhouetteMask(w, h);
+
+      // Punch the tracked face/neck/shoulders silhouette directly out of cloudCanvas so the person is only ever drawn ONCE
+      const cCtx = cloudCanvas.getContext("2d");
+      cCtx.save();
+      cCtx.globalCompositeOperation = "destination-out";
+      cCtx.drawImage(silhouetteMaskCanvas, 0, 0, w, h);
+      cCtx.restore();
+
+      if (isLiveOverlay) ctx.clearRect(0, 0, w, h);
+
+      ctx.save();
+      ctx.globalCompositeOperation = "source-over";
+      ctx.globalAlpha = 1;
+      ctx.drawImage(cloudCanvas, 0, 0, w, h);
+      ctx.restore();
+    }
+
+    function startLiveTrackingLoop() {
+      if (liveTrackRaf) cancelAnimationFrame(liveTrackRaf);
+      const oCtx = auraLiveOverlay.getContext("2d");
+      const w = auraLiveOverlay.width;
+      const h = auraLiveOverlay.height;
+      function step() {
+        if (!usingWebcam || !screen2.classList.contains("active")) {
+          liveTrackRaf = null;
+          return;
+        }
+        if (!isFrozen && cameraVideo.videoWidth > 0) {
+          updateFaceTracking(cameraVideo, true, false);
+          paintAuraGlowOverlay(oCtx, w, h, true);
+        }
+        liveTrackRaf = requestAnimationFrame(step);
+      }
+      liveTrackRaf = requestAnimationFrame(step);
+    }
+
+    async function openCameraPreview() {
+      isFrozen = false;
+      showScreen(2);
+      cameraVideo.style.filter = "none";
+      paintAuraGlowOverlay(auraLiveOverlay.getContext("2d"), auraLiveOverlay.width, auraLiveOverlay.height, true);
+      stopCamera();
+
+      camStatus.classList.remove("hidden");
+      camStatusText.textContent = "Opening camera...";
+      btnRetryCam.style.display = "none";
+
+      try {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          throw new Error("Camera API not available in this browser");
+        }
+        try {
+          mediaStream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } },
+            audio: false
+          });
+        } catch (_) {
+          mediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+        }
+        cameraVideo.srcObject = mediaStream;
+        await cameraVideo.play();
+        usingWebcam = true;
+        camStatus.classList.add("hidden");
+        updateFaceTracking(cameraVideo, true, true);
+        startLiveTrackingLoop();
+      } catch (err) {
+        usingWebcam = false;
+        camStatus.classList.remove("hidden");
+        camStatusText.textContent = "Please allow camera access in your browser to preview";
+        btnRetryCam.style.display = "inline-flex";
+      }
+    }
+
+    btnRetryCam.addEventListener("click", () => {
+      openCameraPreview();
+    });
+
+    function stopCamera() {
+      if (liveTrackRaf) {
+        cancelAnimationFrame(liveTrackRaf);
+        liveTrackRaf = null;
+      }
+      if (mediaStream) {
+        mediaStream.getTracks().forEach((t) => t.stop());
+        mediaStream = null;
+      }
+      cameraVideo.srcObject = null;
+    }
+
+    // Draws captured camera frame + distinct per-filter Kirlian Aura overlay while keeping the face 100% original
+    function drawAuraFrame(ctx, w, h) {
+      const rawCtx = rawCaptureCanvas.getContext("2d");
+      rawCtx.fillStyle = "#080d1a";
+      rawCtx.fillRect(0, 0, w, h);
+
+      if (usingWebcam && cameraVideo.videoWidth > 0) {
+        rawCtx.save();
+        rawCtx.filter = "none";
+        rawCtx.translate(w, 0);
+        rawCtx.scale(-1, 1);
+        const vw = cameraVideo.videoWidth;
+        const vh = cameraVideo.videoHeight;
+        const scale = Math.max(w / vw, h / vh);
+        const dw = vw * scale;
+        const dh = vh * scale;
+        rawCtx.drawImage(cameraVideo, (w - dw) / 2, (h - dh) / 2, dw, dh);
+        rawCtx.restore();
+      }
+
+      updateFaceTracking(rawCaptureCanvas, false, true);
+      // Single base draw of the camera capture + single masked Aura overlay (zero duplicate/double-exposure ghosting)
+      ctx.globalCompositeOperation = "source-over";
+      ctx.drawImage(rawCaptureCanvas, 0, 0, w, h);
+      paintAuraGlowOverlay(ctx, w, h, false);
+    }
+
+    // Removes the background via Bria AI and composites the Auracam 6000 Aura effect around the isolated subject
+    async function generateWithOpenAi(promptForKeyIfMissing) {
+      const storedKey = (localStorage.getItem("OPENAI_API_KEY") || "").trim();
+      const briaKey = (localStorage.getItem("BRIA_API_KEY") || "4e1e3aa7a0d54a5a944833f1d3f63919").trim();
+      resultActions.classList.add("hidden");
+      aiLoadingOverlay.classList.remove("hidden");
+      aiLoadingText.textContent = "Generating...";
+
+      try {
+        let cutoutSrc = null;
+
+        // 1. Primary path: Bria AI Background Removal (direct CORS-enabled call, with backend fallback)
+        try {
+          const captureBlob = await new Promise((resolve) => rawCaptureCanvas.toBlob(resolve, "image/png"));
+          const briaForm = new FormData();
+          briaForm.append("file", captureBlob, "capture.png");
+          const briaRes = await fetch("https://engine.prod.bria-api.com/v1/background/remove", {
+            method: "POST",
+            headers: { api_token: briaKey },
+            body: briaForm
+          });
+          if (briaRes.ok) {
+            const briaJson = await briaRes.json();
+            if (briaJson && briaJson.result_url) {
+              cutoutSrc = briaJson.result_url;
+            }
+          }
+        } catch (_) {}
+
+        // 2. Fallback to local backend /api/generate-aura if direct call was blocked
+        let data = {};
+        if (!cutoutSrc) {
+          const imageBase64 = rawCaptureCanvas.toDataURL("image/png");
+          const payloadStr = JSON.stringify({
+            imageBase64,
+            auraId: selectedAura.id,
+            apiKey: storedKey,
+            briaApiKey: briaKey
+          });
+          let res = await fetch("/api/generate-aura", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: payloadStr
+          });
+          if (res.status === 404) {
+            res = await fetch("http://localhost:3001/api/generate-aura", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: payloadStr
+            });
+          }
+          data = await res.json();
+          if (!res.ok) {
+            throw new Error(data.error || "Generation failed");
+          }
+          cutoutSrc = data.cutoutDataUrl || null;
+        }
+
+        if (cutoutSrc) {
+          const cutoutImg = new Image();
+          cutoutImg.crossOrigin = "anonymous";
+          await new Promise((resolve, reject) => {
+            cutoutImg.onload = resolve;
+            cutoutImg.onerror = reject;
+            cutoutImg.src = cutoutSrc;
+          });
+          const ctx = stageResultCanvas.getContext("2d");
+          const w = stageResultCanvas.width;
+          const h = stageResultCanvas.height;
+          const fx = w * faceState.x;
+          const fy = h * faceState.y;
+          const frx = w * faceState.rx;
+          const fry = h * faceState.ry;
+
+          // Step A: Pitch-black studio + full vivid Auracam 6000 colored Aura dome behind the background-removed user
+          renderAuracamCloudField(w, h);
+          ctx.save();
+          ctx.globalCompositeOperation = "source-over";
+          ctx.globalAlpha = 1;
+          ctx.filter = "none";
+          ctx.clearRect(0, 0, w, h);
+          ctx.drawImage(cloudCanvas, 0, 0, w, h);
+
+          // Step B: Draw Bria AI background-removed user portrait (zero room/chair/wall background!)
+          ctx.drawImage(cutoutImg, 0, 0, w, h);
+
+          // Step C: Create a face-only protection mask so the upper Aura light spills gently over hair & shoulders, 0% on face
+          const cCtx = cloudCanvas.getContext("2d");
+          cCtx.save();
+          cCtx.globalCompositeOperation = "destination-out";
+          cCtx.filter = "blur(14px)";
+          cCtx.drawImage(skinMaskCanvas, 0, 0, w, h);
+          cCtx.fillStyle = "rgba(0,0,0,1)";
+          cCtx.beginPath();
+          cCtx.ellipse(fx, fy + fry * 0.04, frx * 0.96, fry * 1.04, 0, 0, Math.PI * 2);
+          cCtx.fill();
+          cCtx.restore();
+
+          // Soft analog Aura color-light spill across hair, edges, and shoulders
+          ctx.globalCompositeOperation = "screen";
+          ctx.globalAlpha = 0.56;
+          ctx.drawImage(cloudCanvas, 0, 0, w, h);
+
+          ctx.globalCompositeOperation = "source-over";
+          ctx.globalAlpha = 0.26;
+          ctx.drawImage(cloudCanvas, 0, 0, w, h);
+          ctx.restore();
+
+          // Step D: Strictly lock 100% untouched face & neck pixels on top
+          const mCtx = faceMaskCanvas.getContext("2d");
+          mCtx.clearRect(0, 0, w, h);
+          mCtx.globalCompositeOperation = "source-over";
+          mCtx.drawImage(cutoutImg, 0, 0, w, h);
+          mCtx.globalCompositeOperation = "destination-in";
+          mCtx.save();
+          mCtx.filter = "blur(10px)";
+          mCtx.drawImage(skinMaskCanvas, 0, 0, w, h);
+          mCtx.fillStyle = "rgba(0,0,0,1)";
+          mCtx.beginPath();
+          mCtx.ellipse(fx, fy + fry * 0.02, frx * 0.88, fry * 0.96, 0, 0, Math.PI * 2);
+          mCtx.fill();
+          mCtx.restore();
+
+          ctx.save();
+          ctx.globalCompositeOperation = "source-over";
+          ctx.globalAlpha = 1;
+          ctx.drawImage(faceMaskCanvas, 0, 0, w, h);
+          ctx.restore();
+
+          buildPhotoOutputCanvas();
+        } else if (data.imageDataUrl) {
+          const genImg = new Image();
+          genImg.crossOrigin = "anonymous";
+          await new Promise((resolve, reject) => {
+            genImg.onload = resolve;
+            genImg.onerror = reject;
+            genImg.src = data.imageDataUrl;
+          });
+          const ctx = stageResultCanvas.getContext("2d");
+          const w = stageResultCanvas.width;
+          const h = stageResultCanvas.height;
+          const gw = genImg.naturalWidth || w;
+          const gh = genImg.naturalHeight || h;
+          const scale = Math.max(w / gw, h / gh);
+          const dw = gw * scale;
+          const dh = gh * scale;
+          ctx.save();
+          ctx.globalCompositeOperation = "source-over";
+          ctx.globalAlpha = 1;
+          ctx.filter = "none";
+          ctx.clearRect(0, 0, w, h);
+          ctx.drawImage(genImg, (w - dw) / 2, (h - dh) / 2, dw, dh);
+          ctx.restore();
+          buildPhotoOutputCanvas();
+        }
+      } catch (err) {
+        if (promptForKeyIfMissing) {
+          showToast(err.message || "Unable to generate image");
+        }
+      } finally {
+        aiLoadingOverlay.classList.add("hidden");
+        resultActions.classList.remove("hidden");
+      }
+    }
+
+    const modalPolaroidCanvas = document.getElementById("modalPolaroidCanvas");
+    const rupayLogoImg = new Image();
+    rupayLogoImg.onload = () => {
+      if (screen3.classList.contains("active")) buildPhotoOutputCanvas();
+    };
+    rupayLogoImg.src = "rupay-logo.png?v=2";
+
+    // Renders the final black-bordered Photo Output (with RuPay bottom-left & Own the edge bottom-right)
+    function buildPhotoOutputCanvas() {
+      const w = outputPolaroidCanvas.width;   // 520
+      const h = outputPolaroidCanvas.height;  // 760
+      const ctx = outputPolaroidCanvas.getContext("2d");
+
+      // Matte black Polaroid frame
+      ctx.fillStyle = "#111214";
+      ctx.fillRect(0, 0, w, h);
+
+      // Draw captured portrait inside black frame borders
+      const padX = 28;
+      const padTop = 28;
+      const photoW = w - padX * 2;
+      const photoH = h - padTop - 110;
+      ctx.drawImage(stageResultCanvas, 0, 0, stageResultCanvas.width, stageResultCanvas.height, padX, padTop, photoW, photoH);
+
+      // Bottom-left official RuPay Logo image
+      const footerY = h - 42;
+      if (rupayLogoImg.complete && rupayLogoImg.naturalWidth > 0) {
+        ctx.save();
+        ctx.shadowColor = "rgba(255, 255, 255, 0.75)";
+        ctx.shadowBlur = 4;
+        ctx.drawImage(rupayLogoImg, 28, h - 74, 140, 40);
+        ctx.restore();
+      } else {
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "italic 900 32px Arial, Helvetica, sans-serif";
+        ctx.fillText("RuPay", 28, footerY);
+      }
+
+      // Bottom-right "Own the edge" script
+      ctx.save();
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "italic 30px 'Brush Script MT', 'Segoe Script', cursive";
+      ctx.textAlign = "right";
+      ctx.fillText("Own the edge", w - 28, footerY - 2);
+      ctx.restore();
+
+      if (modalPolaroidCanvas) {
+        const mCtx = modalPolaroidCanvas.getContext("2d");
+        mCtx.clearRect(0, 0, w, h);
+        mCtx.drawImage(outputPolaroidCanvas, 0, 0, w, h);
+      }
+
+      // Keep hidden print image synced
+      printImg.src = outputPolaroidCanvas.toDataURL("image/png");
+    }
+
+    function captureAndShowResult() {
+      resultActions.classList.add("hidden");
+      aiLoadingText.textContent = "Generating...";
+      aiLoadingOverlay.classList.remove("hidden");
+      const ctx = stageResultCanvas.getContext("2d");
+      drawAuraFrame(ctx, stageResultCanvas.width, stageResultCanvas.height);
+      stopCamera();
+      passId = "RP-" + Date.now().toString(36).toUpperCase();
+      buildPhotoOutputCanvas();
+      showScreen(3);
+
+      // Generate image first, then reveal the action buttons
+      generateWithOpenAi(false);
+    }
+
+    // Pure-JS ISO/IEC 18004 QR Code Generator (Version 2-L, zero external dependencies)
+    function renderQrCode(canvas, text) {
+      const payload = text.slice(0, 32);
+      const size = 25;
+      const mat = Array.from({ length: size }, () => Array(size).fill(0));
+      const reserved = Array.from({ length: size }, () => Array(size).fill(false));
+
+      function placeFinder(r0, c0) {
+        for (let r = -1; r <= 7; r++) {
+          for (let c = -1; c <= 7; c++) {
+            const rr = r0 + r, cc = c0 + c;
+            if (rr < 0 || rr >= size || cc < 0 || cc >= size) continue;
+            const inOuter = r >= 0 && r <= 6 && c >= 0 && c <= 6;
+            const inRing = r === 0 || r === 6 || c === 0 || c === 6;
+            const inCore = r >= 2 && r <= 4 && c >= 2 && c <= 4;
+            mat[rr][cc] = inOuter && (inRing || inCore) ? 1 : 0;
+            reserved[rr][cc] = true;
+          }
+        }
+      }
+      placeFinder(0, 0);
+      placeFinder(0, size - 7);
+      placeFinder(size - 7, 0);
+
+      for (let r = -2; r <= 2; r++) {
+        for (let c = -2; c <= 2; c++) {
+          const rr = 18 + r, cc = 18 + c;
+          mat[rr][cc] = (Math.abs(r) === 2 || Math.abs(c) === 2 || (r === 0 && c === 0)) ? 1 : 0;
+          reserved[rr][cc] = true;
+        }
+      }
+
+      for (let i = 8; i < size - 8; i++) {
+        if (!reserved[6][i]) { mat[6][i] = i % 2 === 0 ? 1 : 0; reserved[6][i] = true; }
+        if (!reserved[i][6]) { mat[i][6] = i % 2 === 0 ? 1 : 0; reserved[i][6] = true; }
+      }
+
+      mat[size - 8][8] = 1;
+      reserved[size - 8][8] = true;
+      for (let i = 0; i < 9; i++) { reserved[8][i] = true; reserved[i][8] = true; }
+      for (let i = size - 8; i < size; i++) { reserved[8][i] = true; reserved[i][8] = true; }
+
+      const bytes = Array.from(new TextEncoder().encode(payload));
+      const bits = [];
+      const pushBits = (val, len) => {
+        for (let i = len - 1; i >= 0; i--) bits.push((val >> i) & 1);
+      };
+      pushBits(0b0100, 4);
+      pushBits(bytes.length, 8);
+      bytes.forEach((b) => pushBits(b, 8));
+      pushBits(0, 4);
+      while (bits.length % 8 !== 0) bits.push(0);
+
+      const dataWords = [];
+      for (let i = 0; i < bits.length; i += 8) {
+        let b = 0;
+        for (let j = 0; j < 8; j++) b = (b << 1) | (bits[i + j] || 0);
+        dataWords.push(b);
+      }
+      const padBytes = [0xec, 0x11];
+      let pIdx = 0;
+      while (dataWords.length < 34) dataWords.push(padBytes[pIdx++ % 2]);
+
+      const exp = new Uint8Array(512);
+      const log = new Uint8Array(256);
+      let x = 1;
+      for (let i = 0; i < 255; i++) {
+        exp[i] = x;
+        log[x] = i;
+        x <<= 1;
+        if (x & 0x100) x ^= 0x11d;
+      }
+      for (let i = 255; i < 512; i++) exp[i] = exp[i - 255];
+
+      let gen = [1];
+      for (let i = 0; i < 10; i++) {
+        const next = new Array(gen.length + 1).fill(0);
+        for (let j = 0; j < gen.length; j++) {
+          next[j] ^= gen[j];
+          next[j + 1] ^= exp[log[gen[j]] + i];
+        }
+        gen = next;
+      }
+
+      const msg = [...dataWords, ...new Array(10).fill(0)];
+      for (let i = 0; i < dataWords.length; i++) {
+        const coef = msg[i];
+        if (coef !== 0) {
+          for (let j = 0; j < gen.length; j++) {
+            msg[i + j] ^= exp[log[gen[j]] + log[coef]];
+          }
+        }
+      }
+      const allWords = [...dataWords, ...msg.slice(dataWords.length)];
+      const finalBits = [];
+      allWords.forEach((w) => {
+        for (let i = 7; i >= 0; i--) finalBits.push((w >> i) & 1);
+      });
+
+      let bitIdx = 0;
+      let up = true;
+      for (let right = size - 1; right >= 1; right -= 2) {
+        if (right === 6) right = 5;
+        for (let vert = 0; vert < size; vert++) {
+          const r = up ? size - 1 - vert : vert;
+          for (let j = 0; j < 2; j++) {
+            const c = right - j;
+            if (!reserved[r][c]) {
+              const bit = bitIdx < finalBits.length ? finalBits[bitIdx++] : 0;
+              mat[r][c] = bit ^ ((r + c) % 2 === 0 ? 1 : 0);
+            }
+          }
+        }
+        up = !up;
+      }
+
+      const fmt = 0x77c4;
+      const fBits = [];
+      for (let i = 14; i >= 0; i--) fBits.push((fmt >> i) & 1);
+      const fPos1 = [[8,0],[8,1],[8,2],[8,3],[8,4],[8,5],[8,7],[8,8],[7,8],[5,8],[4,8],[3,8],[2,8],[1,8],[0,8]];
+      fPos1.forEach(([r, c], idx) => { mat[r][c] = fBits[idx]; });
+      for (let i = 0; i < 7; i++) mat[size - 1 - i][8] = fBits[i];
+      for (let i = 7; i < 15; i++) mat[8][size - 15 + i] = fBits[i];
+
+      const ctx = canvas.getContext("2d");
+      const scale = Math.floor(canvas.width / (size + 4));
+      const offset = Math.floor((canvas.width - size * scale) / 2);
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#041a47";
+      for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+          if (mat[r][c]) ctx.fillRect(offset + c * scale, offset + r * scale, scale, scale);
+        }
+      }
+    }
+
+    function downloadOutputPng() {
+      outputPolaroidCanvas.toBlob((blob) => {
+        if (!blob) return;
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `rupay-aura-${passId || "photo"}.png`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast("Photo Output saved!");
+      }, "image/png");
+    }
+
+    // Controls wiring
+    document.getElementById("btnStart").addEventListener("click", () => {
+      openCameraPreview();
+    });
+
+    document.getElementById("btnRetakeCam").addEventListener("click", () => {
+      if (isFrozen) {
+        isFrozen = false;
+      } else {
+        stopCamera();
+        showScreen(1);
+      }
+    });
+
+    document.getElementById("btnCapture").addEventListener("click", () => {
+      captureAndShowResult();
+    });
+
+    document.getElementById("btnSubmitCam").addEventListener("click", () => {
+      captureAndShowResult();
+    });
+
+    document.getElementById("btnPrint").addEventListener("click", () => {
+      buildPhotoOutputCanvas();
+      window.print();
+    });
+
+    document.getElementById("btnShare").addEventListener("click", () => {
+      outputPolaroidCanvas.toBlob(async (blob) => {
+        if (!blob) return;
+        const file = new File([blob], `rupay-aura-${passId}.png`, { type: "image/png" });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({
+              title: "RuPay — Own the edge",
+              text: `My RuPay Aura: ${selectedAura.name}`,
+              files: [file]
+            });
+            showToast("Shared successfully");
+            return;
+          } catch (e) {
+            if (e.name === "AbortError") return;
+          }
+        }
+        downloadOutputPng();
+      }, "image/png");
+    });
+
+    document.getElementById("btnQr").addEventListener("click", () => {
+      renderQrCode(qrCanvas, `RUPAY:${passId}:${selectedAura.id}`);
+      qrLabel.textContent = `${selectedAura.name} • #${passId}`;
+      qrModalBox.style.display = "flex";
+      cardModalBox.style.display = "none";
+      modalBackdrop.classList.add("active");
+    });
+
+    document.getElementById("btnViewCard").addEventListener("click", () => {
+      buildPhotoOutputCanvas();
+      qrModalBox.style.display = "none";
+      cardModalBox.style.display = "flex";
+      modalBackdrop.classList.add("active");
+    });
+
+    document.getElementById("btnDownloadFromQr").addEventListener("click", () => {
+      downloadOutputPng();
+    });
+
+    document.getElementById("btnCloseModal").addEventListener("click", () => {
+      modalBackdrop.classList.remove("active");
+    });
+
+    document.getElementById("btnRestart").addEventListener("click", () => {
+      showScreen(1);
+    });
+  </script>
+</body>
+</html>
