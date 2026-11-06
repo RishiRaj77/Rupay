@@ -106,10 +106,10 @@
 
     .rupay-logo {
       display: inline-block;
-      width: clamp(112px, 16vh, 152px);
+      width: clamp(140px, 21vh, 200px);
       height: auto;
       object-fit: contain;
-      filter: drop-shadow(0 0 1.5px rgba(255, 255, 255, 0.9)) drop-shadow(0 2px 8px rgba(255, 255, 255, 0.45));
+      filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.35));
     }
 
     .subtitle-serif {
@@ -509,7 +509,7 @@
         padding: 10px 18px;
       }
       .rupay-logo {
-        width: clamp(92px, 13vh, 128px);
+        width: clamp(115px, 16vh, 155px);
       }
       .subtitle-serif {
         font-size: clamp(0.88rem, 2vh, 1.15rem);
@@ -645,7 +645,7 @@
     <!-- ==================== SCREEN 1: DISCOVER YOUR AURA (6 AVATARS) ==================== -->
     <section id="screen1" class="screen active">
       <div class="top-brand">
-        <img class="rupay-logo" src="rupay-logo.png?v=2" alt="RuPay" />
+        <img class="rupay-logo" src="rupay-logo.png?v=3" alt="RuPay - Own the edge" />
         <div class="subtitle-serif">Discover Your Aura</div>
       </div>
 
@@ -660,7 +660,7 @@
     <!-- ==================== SCREEN 2: CAMERA PREVIEW & CAPTURE ==================== -->
     <section id="screen2" class="screen">
       <div class="top-brand" style="margin-top:8px;">
-        <img class="rupay-logo" src="rupay-logo.png?v=2" alt="RuPay" />
+        <img class="rupay-logo" src="rupay-logo.png?v=3" alt="RuPay - Own the edge" />
       </div>
 
       <div class="blue-frame">
@@ -695,8 +695,7 @@
     <!-- ==================== SCREEN 3: RESULT (PRINT, SHARE, QR, PHOTO OUTPUT) ==================== -->
     <section id="screen3" class="screen">
       <div class="top-brand">
-        <img class="rupay-logo" src="rupay-logo.png?v=2" alt="RuPay" />
-        <div class="subtitle-script">Own the edge</div>
+        <img class="rupay-logo" src="rupay-logo.png?v=3" alt="RuPay - Own the edge" />
       </div>
 
       <div class="polaroid-stage">
@@ -1533,7 +1532,7 @@
     rupayLogoImg.onload = () => {
       if (screen3.classList.contains("active")) buildPhotoOutputCanvas();
     };
-    rupayLogoImg.src = "rupay-logo.png?v=2";
+    rupayLogoImg.src = "rupay-logo.png?v=3";
 
     // Renders the final black-bordered Photo Output (with RuPay bottom-left & Own the edge bottom-right)
     function buildPhotoOutputCanvas() {
@@ -1552,27 +1551,25 @@
       const photoH = h - padTop - 110;
       ctx.drawImage(stageResultCanvas, 0, 0, stageResultCanvas.width, stageResultCanvas.height, padX, padTop, photoW, photoH);
 
-      // Bottom-left official RuPay Logo image
+      // Bottom-left official RuPay Logo & bottom-right "Own the edge" script from rupay-logo.png (1024x430)
       const footerY = h - 42;
       if (rupayLogoImg.complete && rupayLogoImg.naturalWidth > 0) {
         ctx.save();
-        ctx.shadowColor = "rgba(255, 255, 255, 0.75)";
-        ctx.shadowBlur = 4;
-        ctx.drawImage(rupayLogoImg, 28, h - 74, 140, 40);
+        // Top band of rupay-logo.png (x:38..788, y:0..115) = RuPay wordmark + triangles
+        ctx.drawImage(rupayLogoImg, 38, 0, 750, 115, 28, h - 66, 150, 23);
+        // Bottom band of rupay-logo.png (x:0..1024, y:120..430) = "Own the edge" script
+        ctx.drawImage(rupayLogoImg, 0, 120, 1024, 310, w - 208, h - 86, 180, 54);
         ctx.restore();
       } else {
         ctx.fillStyle = "#ffffff";
         ctx.font = "italic 900 32px Arial, Helvetica, sans-serif";
         ctx.fillText("RuPay", 28, footerY);
+        ctx.save();
+        ctx.font = "italic 30px 'Brush Script MT', 'Segoe Script', cursive";
+        ctx.textAlign = "right";
+        ctx.fillText("Own the edge", w - 28, footerY - 2);
+        ctx.restore();
       }
-
-      // Bottom-right "Own the edge" script
-      ctx.save();
-      ctx.fillStyle = "#ffffff";
-      ctx.font = "italic 30px 'Brush Script MT', 'Segoe Script', cursive";
-      ctx.textAlign = "right";
-      ctx.fillText("Own the edge", w - 28, footerY - 2);
-      ctx.restore();
 
       if (modalPolaroidCanvas) {
         const mCtx = modalPolaroidCanvas.getContext("2d");
