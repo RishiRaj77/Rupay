@@ -1546,8 +1546,16 @@
       } finally {
         aiLoadingOverlay.classList.add("hidden");
         resultActions.classList.remove("hidden");
+        try {
+          successChime.muted = false;
+          successChime.currentTime = 0;
+          successChime.play().catch(() => {});
+        } catch (_) {}
       }
     }
+
+    const successChime = new Audio("rupay-chime.mp3");
+    successChime.preload = "auto";
 
     const modalPolaroidCanvas = document.getElementById("modalPolaroidCanvas");
     const rupayWordmarkImg = new Image();
@@ -1610,6 +1618,16 @@
     }
 
     function captureAndShowResult() {
+      try {
+        successChime.muted = true;
+        successChime.play().then(() => {
+          successChime.pause();
+          successChime.currentTime = 0;
+          successChime.muted = false;
+        }).catch(() => {
+          successChime.muted = false;
+        });
+      } catch (_) {}
       resultActions.classList.add("hidden");
       aiLoadingText.textContent = "Generating...";
       aiLoadingOverlay.classList.remove("hidden");
