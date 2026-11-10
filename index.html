@@ -471,6 +471,94 @@
       box-shadow: 0 10px 28px rgba(0, 0, 0, 0.8);
     }
 
+    /* Mobile QR Scan Landing Screen */
+    .qr-ready-title {
+      font-size: clamp(0.82rem, 1.9vh, 1.05rem);
+      font-weight: 800;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+      color: #ffffff;
+      margin-top: 6px;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+    }
+
+    .qr-vibe-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 18px;
+      margin-top: 6px;
+      border-radius: 999px;
+      background: rgba(12, 24, 58, 0.72);
+      border: 1.5px solid rgba(142, 197, 255, 0.48);
+      font-size: clamp(0.72rem, 1.5vh, 0.88rem);
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: 0.6px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+    }
+
+    #qrLandingImg {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    .qr-landing-actions {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: clamp(10px, 1.6vh, 16px);
+      width: min(88%, 340px);
+      flex-shrink: 0;
+    }
+
+    .qr-btn-download {
+      width: 100%;
+      border-radius: 999px;
+      border: none;
+      padding: clamp(13px, 2vh, 17px) 24px;
+      font-size: clamp(0.84rem, 1.8vh, 1rem);
+      font-weight: 800;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+      color: #1e1b4b;
+      background: linear-gradient(90deg, #f8fafc 0%, #f9a8d4 52%, #fb923c 100%);
+      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.45);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: transform 0.12s ease, filter 0.12s ease;
+    }
+
+    .qr-btn-download:active,
+    .qr-btn-share:active {
+      transform: scale(0.98);
+    }
+
+    .qr-btn-share {
+      width: 82%;
+      border-radius: 999px;
+      border: 1.5px solid rgba(165, 180, 252, 0.55);
+      padding: clamp(11px, 1.7vh, 14px) 22px;
+      font-size: clamp(0.78rem, 1.65vh, 0.92rem);
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: #ffffff;
+      background: rgba(15, 23, 54, 0.78);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: transform 0.12s ease, background 0.12s ease;
+    }
+
     /* Ultra-small phones & folded foldables (Galaxy Z Fold cover, iPhone SE, <= 360px) */
     @media (max-width: 360px) {
       .aura-grid {
@@ -806,6 +894,42 @@
         </div>
 
         <div class="toast-msg" id="toastMsg"></div>
+      </div>
+    </section>
+
+    <!-- ==================== SCREEN 4: QR SCAN MOBILE LANDING (PREVIEW + DOWNLOAD + SHARE) ==================== -->
+    <section id="screenQrLanding" class="screen">
+      <div class="top-brand">
+        <img class="rupay-logo rupay-logo-lockup" src="rupay-logo.png?v=5" alt="RuPay - Own the edge" />
+        <div class="subtitle-serif">Discover Your Aura</div>
+        <div class="qr-ready-title">YOUR AURA PORTRAIT IS READY!</div>
+        <div class="qr-vibe-badge" id="qrVibeBadge">Aura: RuPay Edition</div>
+      </div>
+
+      <div class="polaroid-stage">
+        <img id="qrLandingImg" alt="Your RuPay Aura Portrait" crossorigin="anonymous" />
+      </div>
+
+      <div class="qr-landing-actions">
+        <button type="button" class="qr-btn-download" id="btnQrLandingDownload">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          <span>DOWNLOAD PHOTO</span>
+        </button>
+
+        <button type="button" class="qr-btn-share" id="btnQrLandingShare">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="18" cy="5" r="3"/>
+            <circle cx="6" cy="12" r="3"/>
+            <circle cx="18" cy="19" r="3"/>
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+          </svg>
+          <span>SHARE PHOTO</span>
+        </button>
       </div>
     </section>
 
@@ -1907,6 +2031,27 @@
           if (mat[r][c]) ctx.fillRect(offset + c * scale, offset + r * scale, scale, scale);
         }
       }
+
+      // If URL exceeds single-block Version 5 capacity (>106 bytes), draw full-capacity QR onto canvas
+      if (rawBytes.length > 106) {
+        const qrImg = new Image();
+        qrImg.crossOrigin = "anonymous";
+        qrImg.onload = () => {
+          ctx.fillStyle = "#ffffff";
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(qrImg, 0, 0, canvas.width, canvas.height);
+        };
+        qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=8&color=041a47&bgcolor=ffffff&data=${encodeURIComponent(text)}`;
+      }
+    }
+
+    function buildQrShareUrl(cloudUrl) {
+      if (!cloudUrl) return "";
+      const marker = "/image/upload/";
+      const idx = cloudUrl.indexOf(marker);
+      const shortPath = idx !== -1 ? cloudUrl.slice(idx + marker.length) : cloudUrl;
+      const auraIdx = Math.max(0, AURAS.findIndex((a) => a.id === selectedAura.id));
+      return `${window.location.origin}${window.location.pathname}?p=${encodeURIComponent(shortPath)}&a=${auraIdx}`;
     }
 
     function downloadOutputPng() {
@@ -1976,7 +2121,7 @@
       modalBackdrop.classList.add("active");
 
       if (cloudinaryPhotoUrl) {
-        renderQrCode(qrCanvas, cloudinaryPhotoUrl);
+        renderQrCode(qrCanvas, buildQrShareUrl(cloudinaryPhotoUrl));
         qrLabel.textContent = "";
         return;
       }
@@ -1985,7 +2130,7 @@
       renderQrCode(qrCanvas, `RUPAY:${passId}:${selectedAura.id}`);
       const url = await uploadPolaroidToCloudinary();
       if (url) {
-        renderQrCode(qrCanvas, url);
+        renderQrCode(qrCanvas, buildQrShareUrl(url));
       }
       qrLabel.textContent = "";
     });
@@ -2008,6 +2153,78 @@
     document.getElementById("btnRestart").addEventListener("click", () => {
       showScreen(1);
     });
+
+    // Mobile QR Scan Landing Page (?p=...)
+    (function initQrLandingScreen() {
+      const params = new URLSearchParams(window.location.search);
+      const pParam = params.get("p");
+      if (!pParam) return;
+
+      const aIdx = Number(params.get("a") || 0);
+      const auraObj = AURAS[aIdx] || AURAS[0];
+      const fullImgUrl = pParam.startsWith("http")
+        ? pParam
+        : `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/image/upload/${pParam.replace(/^\/+/, "")}`;
+
+      const screenQrLanding = document.getElementById("screenQrLanding");
+      const qrLandingImg = document.getElementById("qrLandingImg");
+      const qrVibeBadge = document.getElementById("qrVibeBadge");
+
+      screen1.classList.remove("active");
+      screen2.classList.remove("active");
+      screen3.classList.remove("active");
+      screenQrLanding.classList.add("active");
+
+      qrLandingImg.src = fullImgUrl;
+      qrVibeBadge.textContent = `Aura: ${auraObj.name}`;
+
+      document.getElementById("btnQrLandingDownload").addEventListener("click", async () => {
+        try {
+          const res = await fetch(fullImgUrl);
+          const blob = await res.blob();
+          const blobUrl = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = blobUrl;
+          a.download = "rupay-aura-portrait.jpg";
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          URL.revokeObjectURL(blobUrl);
+        } catch (_) {
+          const dlUrl = fullImgUrl.includes("/upload/")
+            ? fullImgUrl.replace("/upload/", "/upload/fl_attachment:rupay-aura-portrait/")
+            : fullImgUrl;
+          window.location.href = dlUrl;
+        }
+      });
+
+      document.getElementById("btnQrLandingShare").addEventListener("click", async () => {
+        try {
+          const res = await fetch(fullImgUrl);
+          const blob = await res.blob();
+          const file = new File([blob], "rupay-aura-portrait.jpg", { type: blob.type || "image/jpeg" });
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({
+              title: "RuPay — Discover Your Aura",
+              text: `My RuPay Aura: ${auraObj.name}`,
+              files: [file]
+            });
+            return;
+          }
+          if (navigator.share) {
+            await navigator.share({
+              title: "RuPay — Discover Your Aura",
+              text: `My RuPay Aura: ${auraObj.name}`,
+              url: window.location.href
+            });
+            return;
+          }
+        } catch (e) {
+          if (e && e.name === "AbortError") return;
+        }
+        document.getElementById("btnQrLandingDownload").click();
+      });
+    })();
   </script>
 </body>
 </html>
