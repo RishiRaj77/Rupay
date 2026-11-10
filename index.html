@@ -441,15 +441,13 @@
     }
 
     .polaroid-stage {
-      width: min(88%, 41vh);
-      max-width: 350px;
+      width: min(84vw, 37vh);
+      max-width: 340px;
       aspect-ratio: 520 / 760;
       position: relative;
       margin: auto;
-      flex-shrink: 1;
-      min-height: 0;
+      flex-shrink: 0;
       background: #111214;
-      border: 3.5px solid #ffffff;
       border-radius: 4px;
       box-shadow: 0 16px 38px rgba(0, 0, 0, 0.78);
       overflow: hidden;
@@ -466,60 +464,49 @@
       max-width: min(76vw, 260px);
       max-height: 62dvh;
       height: auto;
-      border: 3px solid #ffffff;
       border-radius: 4px;
       box-shadow: 0 10px 28px rgba(0, 0, 0, 0.8);
     }
 
-    /* Mobile QR Scan Landing Screen */
-    .qr-ready-title {
-      font-size: clamp(0.82rem, 1.9vh, 1.05rem);
-      font-weight: 800;
-      letter-spacing: 1.4px;
-      text-transform: uppercase;
-      color: #ffffff;
-      margin-top: 6px;
-      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
-    }
-
-    .qr-vibe-badge {
-      display: inline-flex;
+    /* Mobile QR Scan Landing Screen — shows ONLY the Polaroid frame + responsive actions */
+    .qr-frame-stage {
+      display: flex;
       align-items: center;
       justify-content: center;
-      padding: 6px 18px;
-      margin-top: 6px;
-      border-radius: 999px;
-      background: rgba(12, 24, 58, 0.72);
-      border: 1.5px solid rgba(142, 197, 255, 0.48);
-      font-size: clamp(0.72rem, 1.5vh, 0.88rem);
-      font-weight: 700;
-      color: #ffffff;
-      letter-spacing: 0.6px;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+      flex: 1;
+      min-height: 0;
+      width: 100%;
+      margin: auto;
     }
 
     #qrLandingImg {
-      width: 100%;
-      height: 100%;
+      width: auto;
+      height: auto;
+      max-width: min(86vw, 44vh);
+      max-height: 68dvh;
+      aspect-ratio: 520 / 760;
       object-fit: contain;
       display: block;
+      border-radius: 4px;
+      box-shadow: 0 18px 42px rgba(0, 0, 0, 0.75);
     }
 
     .qr-landing-actions {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: clamp(10px, 1.6vh, 16px);
-      width: min(88%, 340px);
+      gap: clamp(8px, 1.4vh, 14px);
+      width: min(88vw, 340px);
       flex-shrink: 0;
+      margin-bottom: clamp(4px, 1vh, 12px);
     }
 
     .qr-btn-download {
       width: 100%;
       border-radius: 999px;
       border: none;
-      padding: clamp(13px, 2vh, 17px) 24px;
-      font-size: clamp(0.84rem, 1.8vh, 1rem);
+      padding: clamp(11px, 1.7vh, 15px) 22px;
+      font-size: clamp(0.8rem, 1.7vh, 0.96rem);
       font-weight: 800;
       letter-spacing: 1.4px;
       text-transform: uppercase;
@@ -543,8 +530,8 @@
       width: 82%;
       border-radius: 999px;
       border: 1.5px solid rgba(165, 180, 252, 0.55);
-      padding: clamp(11px, 1.7vh, 14px) 22px;
-      font-size: clamp(0.78rem, 1.65vh, 0.92rem);
+      padding: clamp(9px, 1.5vh, 13px) 20px;
+      font-size: clamp(0.75rem, 1.55vh, 0.9rem);
       font-weight: 700;
       letter-spacing: 1.2px;
       text-transform: uppercase;
@@ -707,6 +694,21 @@
       .polaroid-stage {
         width: min(86vw, 41vh);
         max-width: none;
+      }
+      #qrLandingImg {
+        max-width: min(88vw, 48vh);
+        max-height: 70dvh;
+      }
+      .qr-landing-actions {
+        width: min(86vw, 46vh);
+      }
+      .qr-btn-download {
+        padding: clamp(12px, 1.8vh, 26px) clamp(20px, 4vw, 48px);
+        font-size: clamp(0.82rem, 1.7vh, 1.85rem);
+      }
+      .qr-btn-share {
+        padding: clamp(10px, 1.5vh, 22px) clamp(18px, 3.6vw, 42px);
+        font-size: clamp(0.76rem, 1.5vh, 1.65rem);
       }
       #modalPolaroidCanvas {
         max-width: min(78vw, 44vh);
@@ -962,14 +964,7 @@
 
     <!-- ==================== SCREEN 4: QR SCAN MOBILE LANDING (PREVIEW + DOWNLOAD + SHARE) ==================== -->
     <section id="screenQrLanding" class="screen">
-      <div class="top-brand">
-        <img class="rupay-logo rupay-logo-lockup" src="rupay-logo.png?v=5" alt="RuPay - Own the edge" />
-        <div class="subtitle-serif">Discover Your Aura</div>
-        <div class="qr-ready-title">YOUR AURA PORTRAIT IS READY!</div>
-        <div class="qr-vibe-badge" id="qrVibeBadge">Aura: RuPay Edition</div>
-      </div>
-
-      <div class="polaroid-stage">
+      <div class="qr-frame-stage">
         <img id="qrLandingImg" alt="Your RuPay Aura Portrait" crossorigin="anonymous" />
       </div>
 
@@ -2287,7 +2282,6 @@
 
       const screenQrLanding = document.getElementById("screenQrLanding");
       const qrLandingImg = document.getElementById("qrLandingImg");
-      const qrVibeBadge = document.getElementById("qrVibeBadge");
 
       screen1.classList.remove("active");
       screen2.classList.remove("active");
@@ -2295,7 +2289,6 @@
       screenQrLanding.classList.add("active");
 
       qrLandingImg.src = fullImgUrl;
-      qrVibeBadge.textContent = `Aura: ${auraObj.name}`;
 
       document.getElementById("btnQrLandingDownload").addEventListener("click", async () => {
         try {
