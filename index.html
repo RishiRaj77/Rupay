@@ -494,21 +494,76 @@
       }
     }
 
-    /* Mobile devices & phablets: full-screen edge-to-edge native kiosk feel */
-    @media (max-width: 640px) {
+    /* Portrait orientation (mobile, tablet portrait, 1080x1920 & 4K vertical kiosks): cover 100% of the page edge-to-edge */
+    @media (orientation: portrait) {
       body {
         padding: 0;
       }
       .kiosk {
         width: 100vw;
+        height: 100vh;
         height: 100dvh;
         max-width: none;
+        max-height: none;
         border-radius: 0;
+      }
+      .rupay-logo {
+        width: clamp(135px, 19vh, 420px);
+      }
+      .rupay-logo-lockup {
+        width: clamp(142px, 18.5vh, 430px);
+      }
+      .subtitle-serif {
+        font-size: clamp(0.95rem, 2.2vh, 2.7rem);
+      }
+      .aura-grid {
+        width: min(86vw, 31vh);
+        max-width: none;
+        gap: clamp(8px, 1.3vh, 26px) clamp(12px, 2.5vw, 36px);
+      }
+      .aura-card {
+        border-radius: clamp(4px, 0.7vmin, 12px);
+      }
+      .aura-card-label {
+        font-size: clamp(0.56rem, 1.2vh, 1.45rem);
+        padding: clamp(12px, 1.8vh, 28px) 6px clamp(5px, 0.7vh, 12px);
+      }
+      .glossy-btn {
+        font-size: clamp(0.82rem, 1.8vh, 2.1rem);
+        padding: clamp(10px, 1.6vh, 30px) clamp(22px, 4.5vw, 68px);
+      }
+      .glossy-btn-sm {
+        font-size: clamp(0.66rem, 1.4vh, 1.65rem);
+        padding: clamp(6px, 1vh, 20px) clamp(11px, 2.4vw, 38px);
+      }
+      #btnStart {
+        min-width: clamp(200px, 46vw, 520px);
+        padding: clamp(10px, 1.6vh, 32px) clamp(26px, 5vw, 76px);
+        font-size: clamp(0.9rem, 2vh, 2.35rem);
+      }
+      .shutter-btn {
+        width: clamp(48px, 7.2vh, 138px);
+        height: clamp(48px, 7.2vh, 138px);
+      }
+      .shutter-btn svg {
+        width: clamp(22px, 3.2vh, 62px);
+        height: clamp(22px, 3.2vh, 62px);
+      }
+      .blue-frame {
+        width: min(84vw, 35vh);
+        max-width: none;
+      }
+      .polaroid-stage {
+        width: min(86vw, 41vh);
+        max-width: none;
+      }
+      #modalPolaroidCanvas {
+        max-width: min(78vw, 44vh);
       }
     }
 
-    /* Tablets in portrait & landscape (iPad Mini, iPad Air, Android tablets) */
-    @media (min-width: 641px) and (max-width: 1024px) {
+    /* Tablets in landscape (iPad Mini, iPad Air, Android tablets) */
+    @media (min-width: 641px) and (max-width: 1024px) and (orientation: landscape) {
       .kiosk {
         width: min(90vw, 520px);
         height: min(94dvh, 960px);
@@ -550,8 +605,8 @@
       }
     }
 
-    /* Large tablets, vertical kiosks & high-res displays (iPad Pro, 1080x1920 / 4K touchscreens) */
-    @media (min-width: 768px) and (min-height: 920px) {
+    /* Large landscape displays */
+    @media (min-width: 768px) and (min-height: 920px) and (orientation: landscape) {
       .kiosk {
         width: min(88vw, 580px);
         height: min(92dvh, 1080px);
