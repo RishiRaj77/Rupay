@@ -812,9 +812,9 @@
     <!-- QR & Photo Output Modal -->
     <div class="modal-backdrop" id="modalBackdrop">
       <div class="modal-card" id="qrModalBox" style="display:none;">
-        <div style="font-weight:700;font-size:0.95rem;">Scan QR for Photo Pass</div>
-        <canvas id="qrCanvas" width="176" height="176"></canvas>
-        <div id="qrLabel" style="font-size:0.75rem;color:#94a3b8;"></div>
+        <div style="font-weight:700;font-size:0.95rem;">Scan QR to Download Photo</div>
+        <canvas id="qrCanvas" width="240" height="240"></canvas>
+        <div id="qrLabel" style="font-size:0.75rem;color:#94a3b8;text-align:center;word-break:break-all;"></div>
         <button type="button" class="glossy-btn glossy-btn-sm" id="btnDownloadFromQr">DOWNLOAD PHOTO</button>
       </div>
 
@@ -1605,7 +1605,62 @@
           successChime.currentTime = 0;
           successChime.play().catch(() => {});
         } catch (_) {}
+        uploadPolaroidToCloudinary();
       }
+    }
+
+    let CLOUDINARY_CLOUD_NAME = "dzz5belph";
+    let CLOUDINARY_UPLOAD_PRESET = "RUPAY";
+    let CLOUDINARY_FOLDER = "RUPAY";
+    let cloudinaryPhotoUrl = "";
+    let cloudinaryErrorMsg = "";
+    let cloudinaryUploadPromise = null;
+
+    fetch("/api/config")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((cfg) => {
+        if (cfg) {
+          if (cfg.cloudinaryCloudName) CLOUDINARY_CLOUD_NAME = cfg.cloudinaryCloudName;
+          if (cfg.cloudinaryUploadPreset) CLOUDINARY_UPLOAD_PRESET = cfg.cloudinaryUploadPreset;
+          if (cfg.cloudinaryFolder) CLOUDINARY_FOLDER = cfg.cloudinaryFolder;
+        }
+      })
+      .catch(() => {});
+
+    function uploadPolaroidToCloudinary() {
+      if (cloudinaryPhotoUrl) return Promise.resolve(cloudinaryPhotoUrl);
+      if (cloudinaryUploadPromise) return cloudinaryUploadPromise;
+
+      cloudinaryErrorMsg = "";
+      buildPhotoOutputCanvas();
+      const dataUrl = outputPolaroidCanvas.toDataURL("image/jpeg", 0.92);
+      const form = new FormData();
+      form.append("file", dataUrl);
+      form.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+      form.append("folder", CLOUDINARY_FOLDER);
+
+      cloudinaryUploadPromise = fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
+        method: "POST",
+        body: form
+      })
+        .then((res) => res.json())
+        .then((json) => {
+          if (json && json.secure_url) {
+            cloudinaryPhotoUrl = json.secure_url;
+            return cloudinaryPhotoUrl;
+          }
+          cloudinaryErrorMsg = json?.error?.message || "Cloudinary upload failed";
+          throw new Error(cloudinaryErrorMsg);
+        })
+        .catch((err) => {
+          if (!cloudinaryErrorMsg) cloudinaryErrorMsg = err.message || "Cloudinary upload failed";
+          return "";
+        })
+        .finally(() => {
+          cloudinaryUploadPromise = null;
+        });
+
+      return cloudinaryUploadPromise;
     }
 
     const successChime = new Audio("rupay-chime.mp3");
@@ -1692,6 +1747,8 @@
       drawAuraFrame(ctx, stageResultCanvas.width, stageResultCanvas.height);
       stopCamera();
       passId = "RP-" + Date.now().toString(36).toUpperCase();
+      cloudinaryPhotoUrl = "";
+      cloudinaryUploadPromise = null;
       buildPhotoOutputCanvas();
       showScreen(3);
 
@@ -1699,10 +1756,20 @@
       generateWithOpenAi(false);
     }
 
-    // Pure-JS ISO/IEC 18004 QR Code Generator (Version 2-L, zero external dependencies)
+    // Pure-JS ISO/IEC 18004 QR Code Generator (Versions 2-L to 5-L, up to 106 bytes for full Cloudinary URLs)
     function renderQrCode(canvas, text) {
-      const payload = text.slice(0, 32);
-      const size = 25;
+      const rawBytes = Array.from(new TextEncoder().encode(text));
+      // Pick smallest single-block Level-L version that fits rawBytes (2 bytes overhead for mode + length)
+      const versions = [
+        { ver: 2, size: 25, align: 18, dataCap: 34, ecLen: 10 },
+        { ver: 3, size: 29, align: 22, dataCap: 55, ecLen: 15 },
+        { ver: 4, size: 33, align: 26, dataCap: 80, ecLen: 20 },
+        { ver: 5, size: 37, align: 30, dataCap: 108, ecLen: 26 }
+      ];
+      const spec = versions.find((v) => rawBytes.length <= v.dataCap - 2) || versions[versions.length - 1];
+      const bytes = rawBytes.slice(0, spec.dataCap - 2);
+      const { size, align, dataCap, ecLen } = spec;
+
       const mat = Array.from({ length: size }, () => Array(size).fill(0));
       const reserved = Array.from({ length: size }, () => Array(size).fill(false));
 
@@ -1725,7 +1792,7 @@
 
       for (let r = -2; r <= 2; r++) {
         for (let c = -2; c <= 2; c++) {
-          const rr = 18 + r, cc = 18 + c;
+          const rr = align + r, cc = align + c;
           mat[rr][cc] = (Math.abs(r) === 2 || Math.abs(c) === 2 || (r === 0 && c === 0)) ? 1 : 0;
           reserved[rr][cc] = true;
         }
@@ -1741,7 +1808,6 @@
       for (let i = 0; i < 9; i++) { reserved[8][i] = true; reserved[i][8] = true; }
       for (let i = size - 8; i < size; i++) { reserved[8][i] = true; reserved[i][8] = true; }
 
-      const bytes = Array.from(new TextEncoder().encode(payload));
       const bits = [];
       const pushBits = (val, len) => {
         for (let i = len - 1; i >= 0; i--) bits.push((val >> i) & 1);
@@ -1760,7 +1826,7 @@
       }
       const padBytes = [0xec, 0x11];
       let pIdx = 0;
-      while (dataWords.length < 34) dataWords.push(padBytes[pIdx++ % 2]);
+      while (dataWords.length < dataCap) dataWords.push(padBytes[pIdx++ % 2]);
 
       const exp = new Uint8Array(512);
       const log = new Uint8Array(256);
@@ -1774,7 +1840,7 @@
       for (let i = 255; i < 512; i++) exp[i] = exp[i - 255];
 
       let gen = [1];
-      for (let i = 0; i < 10; i++) {
+      for (let i = 0; i < ecLen; i++) {
         const next = new Array(gen.length + 1).fill(0);
         for (let j = 0; j < gen.length; j++) {
           next[j] ^= gen[j];
@@ -1783,7 +1849,7 @@
         gen = next;
       }
 
-      const msg = [...dataWords, ...new Array(10).fill(0)];
+      const msg = [...dataWords, ...new Array(ecLen).fill(0)];
       for (let i = 0; i < dataWords.length; i++) {
         const coef = msg[i];
         if (coef !== 0) {
@@ -1897,12 +1963,28 @@
       }, "image/png");
     });
 
-    document.getElementById("btnQr").addEventListener("click", () => {
-      renderQrCode(qrCanvas, `RUPAY:${passId}:${selectedAura.id}`);
-      qrLabel.textContent = `${selectedAura.name} • #${passId}`;
+    document.getElementById("btnQr").addEventListener("click", async () => {
       qrModalBox.style.display = "flex";
       cardModalBox.style.display = "none";
       modalBackdrop.classList.add("active");
+
+      if (cloudinaryPhotoUrl) {
+        renderQrCode(qrCanvas, cloudinaryPhotoUrl);
+        qrLabel.innerHTML = `<a href="${cloudinaryPhotoUrl}" target="_blank" rel="noopener" style="color:#93c5fd;text-decoration:underline;">Scan with phone camera to download photo</a>`;
+        return;
+      }
+
+      qrLabel.textContent = "Uploading photo to Cloudinary for QR...";
+      renderQrCode(qrCanvas, `RUPAY:${passId}:${selectedAura.id}`);
+      const url = await uploadPolaroidToCloudinary();
+      if (url) {
+        renderQrCode(qrCanvas, url);
+        qrLabel.innerHTML = `<a href="${url}" target="_blank" rel="noopener" style="color:#93c5fd;text-decoration:underline;">Scan with phone camera to download photo</a>`;
+      } else {
+        qrLabel.textContent = cloudinaryErrorMsg
+          ? `Cloudinary: ${cloudinaryErrorMsg} (preset "${CLOUDINARY_UPLOAD_PRESET}")`
+          : `${selectedAura.name} • #${passId}`;
+      }
     });
 
     document.getElementById("btnViewCard").addEventListener("click", () => {
