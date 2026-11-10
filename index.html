@@ -449,7 +449,8 @@
       flex-shrink: 1;
       min-height: 0;
       background: #111214;
-      border-radius: 3px;
+      border: 3.5px solid #ffffff;
+      border-radius: 4px;
       box-shadow: 0 16px 38px rgba(0, 0, 0, 0.78);
       overflow: hidden;
     }
@@ -465,7 +466,8 @@
       max-width: min(76vw, 260px);
       max-height: 62dvh;
       height: auto;
-      border-radius: 2px;
+      border: 3px solid #ffffff;
+      border-radius: 4px;
       box-shadow: 0 10px 28px rgba(0, 0, 0, 0.8);
     }
 
@@ -1048,15 +1050,16 @@
             const nx = x / tw;
             const dx = nx - mx;
             const dy = ny - my;
-            if (dx * dx + dy * dy <= 0.14) {
+            // Protect all detected skin pixels in the portrait frame
+            const mIdx = (y * tw + x) * 4;
+            mData[mIdx] = 0;
+            mData[mIdx + 1] = 0;
+            mData[mIdx + 2] = 0;
+            mData[mIdx + 3] = 255;
+            if (dx * dx + dy * dy <= 0.18) {
               cxSum += nx;
               cySum += ny;
               cCount++;
-              const mIdx = (y * tw + x) * 4;
-              mData[mIdx] = 0;
-              mData[mIdx + 1] = 0;
-              mData[mIdx + 2] = 0;
-              mData[mIdx + 3] = 255;
             }
           }
         }
@@ -1073,7 +1076,7 @@
               const nx = x / tw;
               const dx = nx - cx;
               const dy = ny - cy;
-              if (dx * dx + dy * dy <= 0.12) {
+              if (dx * dx + dy * dy <= 0.14) {
                 varX += dx * dx;
                 varY += dy * dy;
               }
@@ -1081,8 +1084,8 @@
           }
           const stdX = Math.sqrt(varX / cCount);
           const stdY = Math.sqrt(varY / cCount);
-          const targetRx = Math.max(0.135, Math.min(0.185, stdX * 2.05));
-          const targetRy = Math.max(0.165, Math.min(0.215, stdY * 2.15));
+          const targetRx = Math.max(0.16, Math.min(0.24, stdX * 2.25));
+          const targetRy = Math.max(0.19, Math.min(0.27, stdY * 2.35));
           const lerp = snapImmediately ? 1 : 0.45;
           faceState.x += (cx - faceState.x) * lerp;
           faceState.y += (cy - faceState.y) * lerp;
@@ -1116,37 +1119,45 @@
       }
     }
 
-    // Renders the full, vivid Auracam 6000 color cloud dome on a pitch-black (#000000) studio background
+    // Renders the full, vivid Auracam 6000 color cloud field covering 100% of the frame (zero black borders/corners)
     function renderAuracamCloudField(w, h) {
       if (cloudCanvas.width !== w) cloudCanvas.width = w;
       if (cloudCanvas.height !== h) cloudCanvas.height = h;
       const cCtx = cloudCanvas.getContext("2d");
       const maxDim = Math.max(w, h);
-      const shiftX = (faceState.x - 0.5) * 0.32;
-      const shiftY = (faceState.y - 0.48) * 0.22;
+      const shiftX = (faceState.x - 0.5) * 0.24;
+      const shiftY = (faceState.y - 0.48) * 0.18;
+      const blobs = selectedAura.blobs || [];
 
-      // 1. 100% pure pitch-black studio background (#000000) covering the whole room/chair/wall
+      // 1. Full-bleed color base gradient across the entire canvas so zero black shows anywhere in the frame
       cCtx.save();
       cCtx.globalCompositeOperation = "source-over";
-      cCtx.fillStyle = "#000000";
+      const c0 = blobs[0]?.color || "#ec1b9b";
+      const c1 = blobs[2]?.color || blobs[1]?.color || "#6d28d9";
+      const c2 = blobs[blobs.length - 1]?.color || "#f59e0b";
+      const baseGrad = cCtx.createLinearGradient(0, 0, w, h);
+      baseGrad.addColorStop(0, c0);
+      baseGrad.addColorStop(0.52, c1);
+      baseGrad.addColorStop(1, c2);
+      cCtx.fillStyle = baseGrad;
       cCtx.fillRect(0, 0, w, h);
 
-      // 2. Large, rich Gaussian-blurred Aura dome & shoulder clouds filling 85% of the frame (matching reference Polaroids)
-      (selectedAura.blobs || []).forEach((b) => {
+      // 2. Large, rich Gaussian-blurred Aura clouds expanded to cover 100% of the frame edge-to-edge
+      blobs.forEach((b) => {
         cCtx.save();
-        cCtx.filter = "blur(36px)";
+        cCtx.filter = "blur(42px)";
         const bx = b.x + shiftX;
         const by = b.y + shiftY;
         cCtx.translate(w * bx, h * by);
         cCtx.scale(1, b.ry / b.rx);
-        const r = w * b.rx * 1.12;
+        const r = maxDim * b.rx * 1.55;
 
         // Rich saturated cloud body pass
         cCtx.globalCompositeOperation = "source-over";
-        cCtx.globalAlpha = b.alpha * 0.90;
+        cCtx.globalAlpha = Math.min(1, b.alpha * 0.96);
         const g1 = cCtx.createRadialGradient(0, 0, r * 0.05, 0, 0, r);
         g1.addColorStop(0, b.color);
-        g1.addColorStop(0.58, b.color);
+        g1.addColorStop(0.68, b.color);
         g1.addColorStop(1, "rgba(0,0,0,0)");
         cCtx.fillStyle = g1;
         cCtx.beginPath();
@@ -1155,30 +1166,13 @@
 
         // Luminous Kirlian bloom pass
         cCtx.globalCompositeOperation = "screen";
-        cCtx.globalAlpha = b.alpha * 0.52;
+        cCtx.globalAlpha = b.alpha * 0.58;
         cCtx.fillStyle = g1;
         cCtx.beginPath();
-        cCtx.arc(0, 0, r * 1.08, 0, Math.PI * 2);
+        cCtx.arc(0, 0, r * 1.15, 0, Math.PI * 2);
         cCtx.fill();
         cCtx.restore();
       });
-
-      // 3. Outer Polaroid corner darkening only (leaves the big upper Aura dome and lower shoulder clouds vivid & bright)
-      cCtx.globalCompositeOperation = "source-over";
-      const vig = cCtx.createRadialGradient(
-        w * (0.5 + shiftX * 0.5),
-        h * 0.48,
-        maxDim * 0.40,
-        w * 0.5,
-        h * 0.48,
-        maxDim * 0.66
-      );
-      vig.addColorStop(0, "rgba(0,0,0,0)");
-      vig.addColorStop(0.60, "rgba(0,0,0,0.42)");
-      vig.addColorStop(0.86, "rgba(0,0,0,0.88)");
-      vig.addColorStop(1, "rgba(0,0,0,1)");
-      cCtx.fillStyle = vig;
-      cCtx.fillRect(0, 0, w, h);
 
       cCtx.restore();
     }
@@ -1195,46 +1189,47 @@
       const frx = w * faceState.rx;
       const fry = h * faceState.ry;
 
-      // 1. Subtle low-key silhouette for hair & shoulders so Aura clouds glow richly over hair & dark clothing (no chair bleed)
+      // 1. High-protection silhouette for hair & shoulders so only a very light Aura mist touches edges
       sCtx.save();
-      sCtx.filter = "blur(22px)";
+      sCtx.filter = "blur(20px)";
 
-      // Low-key shoulders/chest (or higher clothing visibility when preserveClothing is set, with gentle color spill)
-      const shoulderAlpha = selectedAura.preserveClothing ? 0.56 : 0.16;
-      const hairAlpha = selectedAura.preserveClothing ? 0.42 : 0.28;
+      // Protect shoulders/chest (leaves only ~15-22% very light aura tint on clothing)
+      const shoulderAlpha = selectedAura.preserveClothing ? 0.85 : 0.76;
+      const hairAlpha = selectedAura.preserveClothing ? 0.78 : 0.70;
       sCtx.fillStyle = `rgba(0,0,0,${shoulderAlpha})`;
       sCtx.beginPath();
-      sCtx.ellipse(fx, fy + h * 0.38, frx * 1.45, h * 0.18, 0, 0, Math.PI * 2);
+      sCtx.ellipse(fx, fy + h * 0.36, frx * 1.65, h * 0.24, 0, 0, Math.PI * 2);
       sCtx.fill();
 
-      // Top hair crown (lets glowing inner Aura light spill gently across the hair)
+      // Top hair crown (only a very light aura rim glow over hair)
       sCtx.fillStyle = `rgba(0,0,0,${hairAlpha})`;
       sCtx.beginPath();
-      sCtx.ellipse(fx, fy - fry * 0.18, frx * 0.86, fry * 0.84, 0, 0, Math.PI * 2);
+      sCtx.ellipse(fx, fy - fry * 0.14, frx * 1.15, fry * 1.10, 0, 0, Math.PI * 2);
       sCtx.fill();
       sCtx.restore();
 
-      // 2. Per-pixel detected skin mask (protects actual face & neck skin at 100% while ignoring the grey office chair behind ears)
+      // 2. Per-pixel detected skin mask (protects actual face & neck skin at 100%)
       sCtx.save();
-      sCtx.filter = "blur(9px)";
+      sCtx.filter = "blur(8px)";
+      sCtx.drawImage(skinMaskCanvas, 0, 0, w, h);
       sCtx.drawImage(skinMaskCanvas, 0, 0, w, h);
       sCtx.drawImage(skinMaskCanvas, 0, 0, w, h);
       sCtx.restore();
 
-      // 3. Tight feathered inner face shield (stops at cheekbones/jawline so zero office chair behind ears is exposed)
+      // 3. Feathered full-face & neck shield (0% filter on face, very soft feather at outer hair edge)
       sCtx.save();
-      sCtx.filter = "blur(10px)";
+      sCtx.filter = "blur(12px)";
       sCtx.fillStyle = "rgba(0,0,0,1)";
       sCtx.beginPath();
-      sCtx.ellipse(fx, fy + fry * 0.02, frx * 0.80, fry * 0.88, 0, 0, Math.PI * 2);
+      sCtx.ellipse(fx, fy + fry * 0.04, frx * 1.18, fry * 1.24, 0, 0, Math.PI * 2);
       sCtx.fill();
       sCtx.restore();
 
-      // 4. Pure solid 1.0 alpha core over eyes, eyebrows, nose, mouth, and beard (0% Aura effect on face)
+      // 4. Pure solid 1.0 alpha core over entire face, forehead, cheeks, chin, and neck (0% Aura effect on face)
       sCtx.save();
       sCtx.fillStyle = "rgba(0,0,0,1)";
       sCtx.beginPath();
-      sCtx.ellipse(fx, fy + fry * 0.02, frx * 0.68, fry * 0.76, 0, 0, Math.PI * 2);
+      sCtx.ellipse(fx, fy + fry * 0.03, frx * 1.02, fry * 1.08, 0, 0, Math.PI * 2);
       sCtx.fill();
       sCtx.restore();
     }
@@ -1470,25 +1465,27 @@
           // Step B: Draw Bria AI background-removed user portrait (zero room/chair/wall background!)
           ctx.drawImage(cutoutImg, 0, 0, w, h);
 
-          // Step C: Create a face-only protection mask so the upper Aura light spills gently over hair & shoulders, 0% on face
+          // Step C: Punch out all skin/face/neck regions from foreground cloudCanvas so 0% covers the face
           const cCtx = cloudCanvas.getContext("2d");
           cCtx.save();
           cCtx.globalCompositeOperation = "destination-out";
-          cCtx.filter = "blur(14px)";
+          cCtx.filter = "blur(12px)";
+          cCtx.drawImage(skinMaskCanvas, 0, 0, w, h);
+          cCtx.drawImage(skinMaskCanvas, 0, 0, w, h);
           cCtx.drawImage(skinMaskCanvas, 0, 0, w, h);
           cCtx.fillStyle = "rgba(0,0,0,1)";
           cCtx.beginPath();
-          cCtx.ellipse(fx, fy + fry * 0.04, frx * 0.96, fry * 1.04, 0, 0, Math.PI * 2);
+          cCtx.ellipse(fx, fy + fry * 0.04, frx * 1.26, fry * 1.32, 0, 0, Math.PI * 2);
           cCtx.fill();
           cCtx.restore();
 
-          // Soft analog Aura color-light spill across hair, edges, and shoulders
+          // Very light, subtle analog Aura mist across outer hair & shoulder edges only
           ctx.globalCompositeOperation = "screen";
-          ctx.globalAlpha = 0.56;
+          ctx.globalAlpha = 0.20;
           ctx.drawImage(cloudCanvas, 0, 0, w, h);
 
           ctx.globalCompositeOperation = "source-over";
-          ctx.globalAlpha = 0.26;
+          ctx.globalAlpha = 0.06;
           ctx.drawImage(cloudCanvas, 0, 0, w, h);
           ctx.restore();
 
@@ -1501,9 +1498,11 @@
           mCtx.save();
           mCtx.filter = "blur(10px)";
           mCtx.drawImage(skinMaskCanvas, 0, 0, w, h);
+          mCtx.drawImage(skinMaskCanvas, 0, 0, w, h);
+          mCtx.drawImage(skinMaskCanvas, 0, 0, w, h);
           mCtx.fillStyle = "rgba(0,0,0,1)";
           mCtx.beginPath();
-          mCtx.ellipse(fx, fy + fry * 0.02, frx * 0.88, fry * 0.96, 0, 0, Math.PI * 2);
+          mCtx.ellipse(fx, fy + fry * 0.03, frx * 1.15, fry * 1.22, 0, 0, Math.PI * 2);
           mCtx.fill();
           mCtx.restore();
 
@@ -1574,9 +1573,12 @@
       const h = outputPolaroidCanvas.height;  // 760
       const ctx = outputPolaroidCanvas.getContext("2d");
 
-      // Matte black Polaroid frame
+      // Matte black Polaroid frame with white outer border strip
       ctx.fillStyle = "#111214";
       ctx.fillRect(0, 0, w, h);
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = 10;
+      ctx.strokeRect(5, 5, w - 10, h - 10);
 
       // Draw captured portrait inside black frame borders
       const padX = 28;
