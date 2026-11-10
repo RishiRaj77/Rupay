@@ -1818,7 +1818,7 @@
     let CLOUDINARY_CLOUD_NAME = "dzz5belph";
     let CLOUDINARY_UPLOAD_PRESET = "rishi123";
     let CLOUDINARY_FOLDER = "RUPAY";
-    let BOOTH_PASSWORD = "1234";
+    let BOOTH_PASSWORD = "9820";
     let cloudinaryPhotoUrl = "";
     let cloudinaryErrorMsg = "";
     let cloudinaryUploadPromise = null;
@@ -2251,10 +2251,7 @@
       if (!pParam) {
         function attemptUnlock() {
           const val = (boothPasswordInput.value || "").trim();
-          const valid =
-            val === BOOTH_PASSWORD ||
-            val.toLowerCase() === "rupay" ||
-            val.toLowerCase() === "rupay123";
+          const valid = val === BOOTH_PASSWORD;
           if (valid) {
             boothPasswordError.textContent = "";
             passwordGateOverlay.classList.add("hidden");

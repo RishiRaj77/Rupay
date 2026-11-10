@@ -84,7 +84,7 @@ const server = http.createServer(async (req, res) => {
         cloudinaryCloudName: (process.env.VITE_CLOUDINARY_CLOUD_NAME || "dzz5belph").trim(),
         cloudinaryUploadPreset: (process.env.VITE_CLOUDINARY_UPLOAD_PRESET || "rishi123").trim(),
         cloudinaryFolder: (process.env.VITE_CLOUDINARY_FOLDER || "RUPAY").trim(),
-        boothPassword: (process.env.VITE_BOOTH_PASSWORD || "1234").trim()
+        boothPassword: (process.env.VITE_BOOTH_PASSWORD || "9820").trim()
       })
     );
   }
