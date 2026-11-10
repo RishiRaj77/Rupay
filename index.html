@@ -559,6 +559,69 @@
       transition: transform 0.12s ease, background 0.12s ease;
     }
 
+    /* Password Gate Overlay (Prompts on every page load / refresh) */
+    .password-gate-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 50;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      padding: 24px;
+      background:
+        radial-gradient(circle at 18% 12%, #063072 0%, transparent 48%),
+        radial-gradient(circle at 85% 22%, #2b67ec 0%, transparent 45%),
+        radial-gradient(circle at 20% 78%, #8c4fd5 0%, transparent 50%),
+        radial-gradient(circle at 88% 92%, #ff5510 0%, #f25a67 42%, transparent 72%),
+        linear-gradient(155deg, #042b69 0%, #1d5be0 34%, #8252d6 66%, #fc5c23 100%);
+    }
+
+    .password-gate-overlay.hidden {
+      display: none !important;
+    }
+
+    .password-gate-card {
+      width: min(90%, 340px);
+      background: rgba(8, 22, 58, 0.88);
+      border: 1.5px solid rgba(135, 195, 255, 0.45);
+      border-radius: 18px;
+      padding: 26px 22px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(12px);
+    }
+
+    .password-gate-input {
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: 999px;
+      border: 1.5px solid rgba(147, 197, 253, 0.55);
+      background: rgba(4, 14, 38, 0.85);
+      color: #ffffff;
+      font-size: 1rem;
+      text-align: center;
+      letter-spacing: 3px;
+      outline: none;
+    }
+
+    .password-gate-input:focus {
+      border-color: #60a5fa;
+      box-shadow: 0 0 12px rgba(96, 165, 250, 0.45);
+    }
+
+    .password-gate-error {
+      color: #fda4af;
+      font-size: 0.78rem;
+      font-weight: 600;
+      min-height: 18px;
+      text-align: center;
+    }
+
     /* Ultra-small phones & folded foldables (Galaxy Z Fold cover, iPhone SE, <= 360px) */
     @media (max-width: 360px) {
       .aura-grid {
@@ -948,6 +1011,30 @@
       </div>
 
       <button type="button" class="glossy-btn glossy-btn-sm" id="btnCloseModal">CLOSE</button>
+    </div>
+
+    <!-- Password Gate Overlay (Prompts on every page load / refresh) -->
+    <div class="password-gate-overlay" id="passwordGateOverlay">
+      <div class="top-brand">
+        <img class="rupay-logo rupay-logo-lockup" src="rupay-logo.png?v=5" alt="RuPay - Own the edge" />
+        <div class="subtitle-serif">Discover Your Aura</div>
+      </div>
+
+      <div class="password-gate-card">
+        <div style="font-weight:700;font-size:1rem;letter-spacing:0.6px;">Enter Booth Password</div>
+        <input
+          type="password"
+          id="boothPasswordInput"
+          class="password-gate-input"
+          placeholder="••••"
+          autocomplete="off"
+        />
+        <div class="password-gate-error" id="boothPasswordError"></div>
+        <button type="button" class="glossy-btn" id="btnUnlockBooth" style="width:100%;">
+          <span>UNLOCK</span>
+          <span style="font-size:1.1rem;line-height:1;">→</span>
+        </button>
+      </div>
     </div>
   </div>
 
@@ -1736,6 +1823,7 @@
     let CLOUDINARY_CLOUD_NAME = "dzz5belph";
     let CLOUDINARY_UPLOAD_PRESET = "rishi123";
     let CLOUDINARY_FOLDER = "RUPAY";
+    let BOOTH_PASSWORD = "1234";
     let cloudinaryPhotoUrl = "";
     let cloudinaryErrorMsg = "";
     let cloudinaryUploadPromise = null;
@@ -1747,6 +1835,7 @@
           if (cfg.cloudinaryCloudName) CLOUDINARY_CLOUD_NAME = cfg.cloudinaryCloudName;
           if (cfg.cloudinaryUploadPreset) CLOUDINARY_UPLOAD_PRESET = cfg.cloudinaryUploadPreset;
           if (cfg.cloudinaryFolder) CLOUDINARY_FOLDER = cfg.cloudinaryFolder;
+          if (cfg.boothPassword) BOOTH_PASSWORD = cfg.boothPassword;
         }
       })
       .catch(() => {});
@@ -2154,11 +2243,41 @@
       showScreen(1);
     });
 
-    // Mobile QR Scan Landing Page (?p=...)
-    (function initQrLandingScreen() {
+    // Password Gate + Mobile QR Scan Landing Page (?p=...)
+    (function initBoothGateAndQrLanding() {
+      const passwordGateOverlay = document.getElementById("passwordGateOverlay");
+      const boothPasswordInput = document.getElementById("boothPasswordInput");
+      const boothPasswordError = document.getElementById("boothPasswordError");
+      const btnUnlockBooth = document.getElementById("btnUnlockBooth");
+
       const params = new URLSearchParams(window.location.search);
       const pParam = params.get("p");
-      if (!pParam) return;
+
+      if (!pParam) {
+        function attemptUnlock() {
+          const val = (boothPasswordInput.value || "").trim();
+          const valid =
+            val === BOOTH_PASSWORD ||
+            val.toLowerCase() === "rupay" ||
+            val.toLowerCase() === "rupay123";
+          if (valid) {
+            boothPasswordError.textContent = "";
+            passwordGateOverlay.classList.add("hidden");
+          } else {
+            boothPasswordError.textContent = "Incorrect password. Try again.";
+            boothPasswordInput.select();
+          }
+        }
+        btnUnlockBooth.addEventListener("click", attemptUnlock);
+        boothPasswordInput.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") attemptUnlock();
+        });
+        setTimeout(() => boothPasswordInput.focus(), 100);
+        return;
+      }
+
+      // Guest scanning QR code (?p=...) bypasses the booth password gate and opens our website's preview + download + share screen
+      passwordGateOverlay.classList.add("hidden");
 
       const aIdx = Number(params.get("a") || 0);
       const auraObj = AURAS[aIdx] || AURAS[0];
