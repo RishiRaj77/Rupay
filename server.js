@@ -82,7 +82,7 @@ const server = http.createServer(async (req, res) => {
     return res.end(
       JSON.stringify({
         cloudinaryCloudName: (process.env.VITE_CLOUDINARY_CLOUD_NAME || "dzz5belph").trim(),
-        cloudinaryUploadPreset: (process.env.VITE_CLOUDINARY_UPLOAD_PRESET || "RUPAY").trim(),
+        cloudinaryUploadPreset: (process.env.VITE_CLOUDINARY_UPLOAD_PRESET || "rishi123").trim(),
         cloudinaryFolder: (process.env.VITE_CLOUDINARY_FOLDER || "RUPAY").trim()
       })
     );

@@ -814,8 +814,8 @@
       <div class="modal-card" id="qrModalBox" style="display:none;">
         <div style="font-weight:700;font-size:0.95rem;">Scan QR to Download Photo</div>
         <canvas id="qrCanvas" width="240" height="240"></canvas>
-        <div id="qrLabel" style="font-size:0.75rem;color:#94a3b8;text-align:center;word-break:break-all;"></div>
-        <button type="button" class="glossy-btn glossy-btn-sm" id="btnDownloadFromQr">DOWNLOAD PHOTO</button>
+        <div id="qrLabel" style="display:none;"></div>
+        <button type="button" class="glossy-btn glossy-btn-sm" id="btnDownloadFromQr" style="display:none;">DOWNLOAD PHOTO</button>
       </div>
 
       <div class="modal-card" id="cardModalBox" style="display:none;background:transparent;border:none;box-shadow:none;padding:0;">
@@ -1610,7 +1610,7 @@
     }
 
     let CLOUDINARY_CLOUD_NAME = "dzz5belph";
-    let CLOUDINARY_UPLOAD_PRESET = "RUPAY";
+    let CLOUDINARY_UPLOAD_PRESET = "rishi123";
     let CLOUDINARY_FOLDER = "RUPAY";
     let cloudinaryPhotoUrl = "";
     let cloudinaryErrorMsg = "";
@@ -1634,31 +1634,38 @@
       cloudinaryErrorMsg = "";
       buildPhotoOutputCanvas();
       const dataUrl = outputPolaroidCanvas.toDataURL("image/jpeg", 0.92);
-      const form = new FormData();
-      form.append("file", dataUrl);
-      form.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-      form.append("folder", CLOUDINARY_FOLDER);
 
-      cloudinaryUploadPromise = fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
-        method: "POST",
-        body: form
-      })
-        .then((res) => res.json())
-        .then((json) => {
+      async function tryUpload(presetName) {
+        const form = new FormData();
+        form.append("file", dataUrl);
+        form.append("upload_preset", presetName);
+        form.append("folder", CLOUDINARY_FOLDER);
+        const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
+          method: "POST",
+          body: form
+        });
+        return res.json();
+      }
+
+      cloudinaryUploadPromise = (async () => {
+        try {
+          let json = await tryUpload(CLOUDINARY_UPLOAD_PRESET);
+          if (!json?.secure_url && CLOUDINARY_UPLOAD_PRESET !== "rishi123") {
+            json = await tryUpload("rishi123");
+          }
           if (json && json.secure_url) {
             cloudinaryPhotoUrl = json.secure_url;
             return cloudinaryPhotoUrl;
           }
           cloudinaryErrorMsg = json?.error?.message || "Cloudinary upload failed";
-          throw new Error(cloudinaryErrorMsg);
-        })
-        .catch((err) => {
-          if (!cloudinaryErrorMsg) cloudinaryErrorMsg = err.message || "Cloudinary upload failed";
           return "";
-        })
-        .finally(() => {
+        } catch (err) {
+          cloudinaryErrorMsg = err.message || "Cloudinary upload failed";
+          return "";
+        } finally {
           cloudinaryUploadPromise = null;
-        });
+        }
+      })();
 
       return cloudinaryUploadPromise;
     }
@@ -1970,21 +1977,17 @@
 
       if (cloudinaryPhotoUrl) {
         renderQrCode(qrCanvas, cloudinaryPhotoUrl);
-        qrLabel.innerHTML = `<a href="${cloudinaryPhotoUrl}" target="_blank" rel="noopener" style="color:#93c5fd;text-decoration:underline;">Scan with phone camera to download photo</a>`;
+        qrLabel.textContent = "";
         return;
       }
 
-      qrLabel.textContent = "Uploading photo to Cloudinary for QR...";
+      qrLabel.textContent = "";
       renderQrCode(qrCanvas, `RUPAY:${passId}:${selectedAura.id}`);
       const url = await uploadPolaroidToCloudinary();
       if (url) {
         renderQrCode(qrCanvas, url);
-        qrLabel.innerHTML = `<a href="${url}" target="_blank" rel="noopener" style="color:#93c5fd;text-decoration:underline;">Scan with phone camera to download photo</a>`;
-      } else {
-        qrLabel.textContent = cloudinaryErrorMsg
-          ? `Cloudinary: ${cloudinaryErrorMsg} (preset "${CLOUDINARY_UPLOAD_PRESET}")`
-          : `${selectedAura.name} • #${passId}`;
       }
+      qrLabel.textContent = "";
     });
 
     document.getElementById("btnViewCard").addEventListener("click", () => {
