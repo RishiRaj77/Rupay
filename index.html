@@ -443,7 +443,7 @@
     .polaroid-stage {
       width: min(84vw, 37vh);
       max-width: 340px;
-      aspect-ratio: 520 / 760;
+      aspect-ratio: 2 / 3;
       position: relative;
       margin: auto;
       flex-shrink: 0;
@@ -484,7 +484,7 @@
       height: auto;
       max-width: min(86vw, 44vh);
       max-height: 68dvh;
-      aspect-ratio: 520 / 760;
+      aspect-ratio: 2 / 3;
       object-fit: contain;
       display: block;
       border-radius: 4px;
@@ -808,31 +808,44 @@
     }
 
     @media print {
-      html, body {
-        width: 4in;
-        height: 6in;
-        background: #ffffff;
-        padding: 0;
-        margin: 0;
-        overflow: hidden;
+      * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
       }
-      .kiosk {
+      html, body {
+        width: 100% !important;
+        height: 100% !important;
+        min-height: 0 !important;
+        display: block !important;
+        background: #111214 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        overflow: hidden !important;
+      }
+      .kiosk,
+      .modal-backdrop,
+      .toast-msg {
         display: none !important;
       }
       #printMount {
-        display: flex !important;
-        align-items: center;
-        justify-content: center;
-        width: 4in;
-        height: 6in;
-        margin: 0;
-        padding: 0;
+        display: block !important;
+        position: fixed !important;
+        inset: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+        page-break-after: avoid;
+        break-after: avoid;
       }
       #printMount img {
-        width: 4in;
-        height: 6in;
-        object-fit: contain;
-        display: block;
+        display: block !important;
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: fill !important;
+        margin: 0 !important;
+        padding: 0 !important;
       }
     }
   </style>
@@ -943,7 +956,7 @@
 
       <div class="polaroid-stage">
         <canvas id="stageResultCanvas" width="424" height="590" style="display:none;"></canvas>
-        <canvas id="outputPolaroidCanvas" width="520" height="760"></canvas>
+        <canvas id="outputPolaroidCanvas" width="1200" height="1800"></canvas>
         <div class="cam-status hidden" id="aiLoadingOverlay">
           <div class="loading-spinner"></div>
           <span id="aiLoadingText">Generating...</span>
@@ -1012,7 +1025,7 @@
       </div>
 
       <div class="modal-card" id="cardModalBox" style="display:none;background:transparent;border:none;box-shadow:none;padding:0;">
-        <canvas id="modalPolaroidCanvas" width="520" height="760"></canvas>
+        <canvas id="modalPolaroidCanvas" width="1200" height="1800"></canvas>
         <div style="font-size:0.8rem;color:#cbd5e1;font-weight:600;">Photo Output</div>
       </div>
 
@@ -1903,45 +1916,48 @@
     rupayWordmarkImg.src = "rupay-wordmark.png?v=4";
     ownTheEdgeImg.src = "own-the-edge.png?v=4";
 
-    // Renders the final black-bordered Photo Output (with RuPay bottom-left & Own the edge bottom-right)
+    // Renders the final black-bordered Photo Output at 1200x1800 (4x6 @ 300 DPI)
     function buildPhotoOutputCanvas() {
-      const w = outputPolaroidCanvas.width;   // 520
-      const h = outputPolaroidCanvas.height;  // 760
+      const w = outputPolaroidCanvas.width;   // 1200
+      const h = outputPolaroidCanvas.height;  // 1800
       const ctx = outputPolaroidCanvas.getContext("2d");
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "high";
 
-      // Matte black Polaroid frame with white outer border strip
+      // Full-bleed matte black Polaroid frame (covers entire 1200x1800 page)
       ctx.fillStyle = "#111214";
       ctx.fillRect(0, 0, w, h);
-      ctx.strokeStyle = "#ffffff";
-      ctx.lineWidth = 10;
-      ctx.strokeRect(5, 5, w - 10, h - 10);
 
       // Draw captured portrait inside black frame borders
-      const padX = 28;
-      const padTop = 28;
+      const padX = Math.round(w * (28 / 520));        // ~65px
+      const padTop = Math.round(w * (28 / 520));      // ~65px
+      const footerH = Math.round(h * (110 / 760));    // ~261px
       const photoW = w - padX * 2;
-      const photoH = h - padTop - 110;
+      const photoH = h - padTop - footerH;
       ctx.drawImage(stageResultCanvas, 0, 0, stageResultCanvas.width, stageResultCanvas.height, padX, padTop, photoW, photoH);
 
       // Bottom-left official white RuPay wordmark + triangles (442x116)
-      const footerY = h - 42;
+      const scale = w / 520;
+      const footerY = h - Math.round(42 * scale);
       if (rupayWordmarkImg.complete && rupayWordmarkImg.naturalWidth > 0) {
-        ctx.drawImage(rupayWordmarkImg, 28, h - 72, 138, 36);
+        ctx.drawImage(rupayWordmarkImg, padX, h - Math.round(72 * scale), Math.round(138 * scale), Math.round(36 * scale));
       } else {
         ctx.fillStyle = "#ffffff";
-        ctx.font = "italic 900 32px Arial, Helvetica, sans-serif";
-        ctx.fillText("RuPay", 28, footerY);
+        ctx.font = `italic 900 ${Math.round(32 * scale)}px Arial, Helvetica, sans-serif`;
+        ctx.fillText("RuPay", padX, footerY);
       }
 
       // Bottom-right official white "Own the edge" artwork (1024x406)
       if (ownTheEdgeImg.complete && ownTheEdgeImg.naturalWidth > 0) {
-        ctx.drawImage(ownTheEdgeImg, w - 28 - 170, h - 88, 170, 67);
+        const edgeW = Math.round(170 * scale);
+        const edgeH = Math.round(67 * scale);
+        ctx.drawImage(ownTheEdgeImg, w - padX - edgeW, h - Math.round(88 * scale), edgeW, edgeH);
       } else {
         ctx.save();
         ctx.fillStyle = "#ffffff";
-        ctx.font = "italic 30px 'Brush Script MT', 'Segoe Script', cursive";
+        ctx.font = `italic ${Math.round(30 * scale)}px 'Brush Script MT', 'Segoe Script', cursive`;
         ctx.textAlign = "right";
-        ctx.fillText("Own the edge", w - 28, footerY - 2);
+        ctx.fillText("Own the edge", w - padX, footerY - Math.round(2 * scale));
         ctx.restore();
       }
 
