@@ -802,11 +802,19 @@
       display: none;
     }
 
+    @page {
+      size: 4in 6in;
+      margin: 0;
+    }
+
     @media print {
-      body {
+      html, body {
+        width: 4in;
+        height: 6in;
         background: #ffffff;
         padding: 0;
         margin: 0;
+        overflow: hidden;
       }
       .kiosk {
         display: none !important;
@@ -815,13 +823,16 @@
         display: flex !important;
         align-items: center;
         justify-content: center;
-        width: 100vw;
-        height: 100vh;
+        width: 4in;
+        height: 6in;
+        margin: 0;
+        padding: 0;
       }
       #printMount img {
-        max-width: 92vw;
-        max-height: 94vh;
+        width: 4in;
+        height: 6in;
         object-fit: contain;
+        display: block;
       }
     }
   </style>
