@@ -98,7 +98,11 @@ exports.handler = async (event) => {
       };
     }
 
-    const prompt = AURA_PROMPTS[auraId] || AURA_PROMPTS["retro-color-light"];
+    const auraIds = Object.keys(AURA_PROMPTS);
+    const resolvedAuraId = AURA_PROMPTS[auraId]
+      ? auraId
+      : auraIds[Math.floor(Math.random() * auraIds.length)];
+    const prompt = AURA_PROMPTS[resolvedAuraId];
 
     async function callEdit(modelName) {
       const form = new FormData();

@@ -138,7 +138,11 @@ const server = http.createServer(async (req, res) => {
           res.writeHead(400, { "Content-Type": "application/json" });
           return res.end(JSON.stringify({ error: "Missing Bria AI or OpenAI API key" }));
         }
-        const prompt = AURA_PROMPTS[auraId] || AURA_PROMPTS["retro-color-light"];
+        const auraIds = Object.keys(AURA_PROMPTS);
+        const resolvedAuraId = AURA_PROMPTS[auraId]
+          ? auraId
+          : auraIds[Math.floor(Math.random() * auraIds.length)];
+        const prompt = AURA_PROMPTS[resolvedAuraId];
 
         async function callEdit(modelName) {
           const form = new FormData();

@@ -137,63 +137,6 @@
       text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
     }
 
-    /* Screen 1: 2x3 Aura Grid scaled dynamically to fit both height & width */
-    .aura-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      grid-auto-rows: max-content;
-      gap: clamp(8px, 1.3vh, 14px) clamp(12px, 2.5vw, 18px);
-      width: min(86%, 30.5vh);
-      max-width: 300px;
-      margin: 0 auto;
-      flex-shrink: 0;
-    }
-
-    .aura-card {
-      position: relative;
-      aspect-ratio: 50 / 63;
-      width: 100%;
-      height: auto;
-      background: #0a1022;
-      border: clamp(2px, 0.4vmin, 3.5px) solid #091224;
-      border-bottom: clamp(2.5px, 0.5vmin, 4px) solid #1e62d0;
-      border-radius: 4px;
-      overflow: hidden;
-      cursor: pointer;
-      padding: 0;
-      box-shadow: 0 8px 18px rgba(5, 15, 40, 0.45);
-      transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
-    }
-
-    .aura-card img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-
-    .aura-card-label {
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      padding: 14px 4px 5px;
-      background: linear-gradient(0deg, rgba(4, 12, 30, 0.9) 0%, rgba(4, 12, 30, 0.55) 65%, transparent 100%);
-      color: #ffffff;
-      font-size: clamp(0.56rem, 1.15vh, 0.68rem);
-      font-weight: 600;
-      letter-spacing: 0.2px;
-      line-height: 1.15;
-      text-align: center;
-      pointer-events: none;
-    }
-
-    .aura-card:hover {
-      transform: translateY(-3px) scale(1.03);
-      border-color: #ffffff;
-      box-shadow: 0 0 18px rgba(255, 255, 255, 0.55), 0 10px 22px rgba(5, 15, 40, 0.6);
-    }
-
     /* Glossy 3D Blue Pill Buttons matching reference */
     .glossy-btn {
       appearance: none;
@@ -217,18 +160,6 @@
       gap: 8px;
       flex-shrink: 0;
       transition: transform 0.12s ease, filter 0.12s ease;
-    }
-
-    #btnStart {
-      min-width: clamp(200px, 48vw, 250px);
-      padding: clamp(10px, 1.5vh, 14px) clamp(26px, 5vw, 38px);
-      font-size: clamp(0.9rem, 1.9vh, 1.05rem);
-      letter-spacing: 2px;
-      margin: 2px 0;
-      box-shadow:
-        0 8px 24px rgba(4, 18, 54, 0.65),
-        inset 0 2px 4px rgba(255, 255, 255, 0.5),
-        inset 0 -3px 6px rgba(2, 10, 32, 0.85);
     }
 
     .glossy-btn:hover {
@@ -333,14 +264,37 @@
     }
 
     #aiLoadingOverlay {
-      background: rgba(5, 8, 20, 0.96);
+      position: absolute;
+      inset: 0;
+      z-index: 30;
+      gap: clamp(18px, 3vh, 32px);
+      padding: 28px;
+      background:
+        radial-gradient(circle at 18% 12%, #063072 0%, transparent 48%),
+        radial-gradient(circle at 85% 22%, #2b67ec 0%, transparent 45%),
+        radial-gradient(circle at 20% 78%, #8c4fd5 0%, transparent 50%),
+        radial-gradient(circle at 88% 92%, #ff5510 0%, #f25a67 42%, transparent 72%),
+        linear-gradient(155deg, #042b69 0%, #1d5be0 34%, #8252d6 66%, #fc5c23 100%);
+    }
+
+    .loading-brand-img {
+      width: min(78%, 320px);
+      height: auto;
+      object-fit: contain;
+      filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.45));
+      animation: loadingBrandPulse 2.2s ease-in-out infinite;
+    }
+
+    @keyframes loadingBrandPulse {
+      0%, 100% { transform: scale(1); opacity: 0.94; }
+      50% { transform: scale(1.04); opacity: 1; }
     }
 
     .loading-spinner {
       width: 38px;
       height: 38px;
-      border: 3px solid rgba(142, 197, 255, 0.25);
-      border-top-color: #60a5fa;
+      border: 3px solid rgba(255, 255, 255, 0.28);
+      border-top-color: #ffffff;
       border-radius: 50%;
       animation: auraSpin 0.85s linear infinite;
     }
@@ -548,14 +502,6 @@
 
     /* Ultra-small phones & folded foldables (Galaxy Z Fold cover, iPhone SE, <= 360px) */
     @media (max-width: 360px) {
-      .aura-grid {
-        width: min(90%, 28vh);
-        gap: 6px 10px;
-      }
-      .aura-card-label {
-        font-size: 0.52rem;
-        padding: 10px 2px 4px;
-      }
       .camera-bar {
         gap: 6px;
       }
@@ -591,18 +537,6 @@
       .subtitle-serif {
         font-size: clamp(0.95rem, 2.2vh, 2.7rem);
       }
-      .aura-grid {
-        width: min(86vw, 31vh);
-        max-width: none;
-        gap: clamp(8px, 1.3vh, 26px) clamp(12px, 2.5vw, 36px);
-      }
-      .aura-card {
-        border-radius: clamp(4px, 0.7vmin, 12px);
-      }
-      .aura-card-label {
-        font-size: clamp(0.56rem, 1.2vh, 1.45rem);
-        padding: clamp(12px, 1.8vh, 28px) 6px clamp(5px, 0.7vh, 12px);
-      }
       .glossy-btn {
         font-size: clamp(0.82rem, 1.8vh, 2.1rem);
         padding: clamp(10px, 1.6vh, 30px) clamp(22px, 4.5vw, 68px);
@@ -610,11 +544,6 @@
       .glossy-btn-sm {
         font-size: clamp(0.66rem, 1.4vh, 1.65rem);
         padding: clamp(6px, 1vh, 20px) clamp(11px, 2.4vw, 38px);
-      }
-      #btnStart {
-        min-width: clamp(200px, 46vw, 520px);
-        padding: clamp(10px, 1.6vh, 32px) clamp(26px, 5vw, 76px);
-        font-size: clamp(0.9rem, 2vh, 2.35rem);
       }
       .shutter-btn {
         width: clamp(48px, 7.2vh, 138px);
@@ -631,6 +560,9 @@
       .polaroid-stage {
         width: min(86vw, 41vh);
         max-width: none;
+      }
+      .loading-brand-img {
+        width: clamp(220px, 72vw, 560px);
       }
       #qrLandingImg {
         max-width: min(88vw, 48vh);
@@ -658,10 +590,6 @@
         width: min(90vw, 520px);
         height: min(94dvh, 960px);
       }
-      .aura-grid {
-        width: min(86%, 31vh);
-        max-width: 315px;
-      }
       .blue-frame {
         width: min(84%, 35vh);
         max-width: 340px;
@@ -686,10 +614,6 @@
       .subtitle-script {
         font-size: clamp(1.25rem, 3vh, 1.75rem);
       }
-      .aura-grid {
-        width: min(84%, 28.5vh);
-        gap: 6px 10px;
-      }
       .blue-frame {
         width: min(80%, 34vh);
       }
@@ -700,10 +624,6 @@
       .kiosk {
         width: min(88vw, 580px);
         height: min(92dvh, 1080px);
-      }
-      .aura-grid {
-        width: min(86%, 31vh);
-        max-width: 340px;
       }
       .blue-frame {
         width: min(84%, 36vh);
@@ -718,12 +638,6 @@
         height: 96dvh;
         min-height: 0;
         padding: 8px 18px;
-      }
-      .aura-grid {
-        grid-template-columns: repeat(3, 1fr);
-        width: min(92%, 78vh);
-        max-width: 460px;
-        gap: 6px 12px;
       }
       .blue-frame {
         width: min(48%, 37vh);
@@ -835,25 +749,11 @@
       </g>
     </svg>
 
-    <!-- ==================== SCREEN 1: DISCOVER YOUR AURA (6 AVATARS) ==================== -->
-    <section id="screen1" class="screen active">
-      <div class="top-brand">
-        <img class="rupay-logo rupay-logo-lockup" src="rupay-logo.png?v=5" alt="RuPay - Own the edge" />
-        <div class="subtitle-serif">Discover Your Aura</div>
-      </div>
-
-      <div class="aura-grid" id="auraGrid"></div>
-
-      <button type="button" class="glossy-btn" id="btnStart">
-        <span>START</span>
-        <span style="font-size:1.1rem;line-height:1;">→</span>
-      </button>
-    </section>
-
     <!-- ==================== SCREEN 2: CAMERA PREVIEW & CAPTURE ==================== -->
-    <section id="screen2" class="screen">
+    <section id="screen2" class="screen active">
       <div class="top-brand" style="margin-top:8px;">
         <img class="rupay-logo rupay-logo-lockup" src="rupay-logo.png?v=5" alt="RuPay - Own the edge" />
+        <div class="subtitle-serif">Discover Your Aura</div>
       </div>
 
       <div class="blue-frame">
@@ -894,10 +794,6 @@
       <div class="polaroid-stage">
         <canvas id="stageResultCanvas" width="424" height="590" style="display:none;"></canvas>
         <canvas id="outputPolaroidCanvas" width="1200" height="1800"></canvas>
-        <div class="cam-status hidden" id="aiLoadingOverlay">
-          <div class="loading-spinner"></div>
-          <span id="aiLoadingText">Generating...</span>
-        </div>
       </div>
 
       <div class="result-actions hidden" id="resultActions">
@@ -952,6 +848,13 @@
       </div>
     </section>
 
+    <!-- Full-Screen Branded Loading Overlay while generating portrait -->
+    <div class="cam-status hidden" id="aiLoadingOverlay">
+      <img class="loading-brand-img" src="rupay-loading.png" alt="RuPay — Own the edge" />
+      <div class="loading-spinner"></div>
+      <span id="aiLoadingText">Generating...</span>
+    </div>
+
     <!-- QR & Photo Output Modal -->
     <div class="modal-backdrop" id="modalBackdrop">
       <div class="modal-card" id="qrModalBox" style="display:none;">
@@ -981,6 +884,8 @@
       {
         id: "magenta-retro-haze",
         name: "Magenta Retro Haze",
+        trait: "Dreamy · Expressive",
+        accent: "#ec1b9b",
         thumb: "avatar1.jpg",
         cropBorder: true,
         preserveClothing: true,
@@ -997,6 +902,8 @@
       {
         id: "vintage-magenta-coral",
         name: "Vintage Magenta Coral",
+        trait: "Radiant · Energetic",
+        accent: "#f26b38",
         thumb: "avatar2.jpg",
         cropBorder: true,
         preserveClothing: true,
@@ -1015,6 +922,8 @@
       {
         id: "cobalt-violet-vintage",
         name: "Cobalt Violet Vintage",
+        trait: "Cool · Visionary",
+        accent: "#4f6bff",
         thumb: "avatar3.jpg",
         cropBorder: true,
         preserveClothing: true,
@@ -1030,6 +939,8 @@
       {
         id: "retro-color-light",
         name: "Retro Color-Light",
+        trait: "Bold · Electric",
+        accent: "#ec266a",
         thumb: "avatar4.jpg",
         cropBorder: true,
         preserveClothing: true,
@@ -1047,6 +958,8 @@
       {
         id: "cobalt-emerald-bloom",
         name: "Cobalt Emerald Bloom",
+        trait: "Fresh · Balanced",
+        accent: "#14b8a6",
         thumb: "avatar5.jpg",
         cropBorder: true,
         cornerDark: 0.96,
@@ -1064,6 +977,8 @@
       {
         id: "amber-magenta-halo",
         name: "Amber Magenta Halo",
+        trait: "Magnetic · Iconic",
+        accent: "#e07b1e",
         thumb: "avatar6.jpg",
         cropBorder: true,
         cornerDark: 0.96,
@@ -1079,7 +994,8 @@
       }
     ];
 
-    let selectedAura = AURAS[5];
+    let selectedAura = AURAS[0];
+    const recentAuraIds = [];
     let mediaStream = null;
     let usingWebcam = false;
     let isFrozen = false;
@@ -1117,10 +1033,8 @@
       }
     }
 
-    const screen1 = document.getElementById("screen1");
     const screen2 = document.getElementById("screen2");
     const screen3 = document.getElementById("screen3");
-    const auraGrid = document.getElementById("auraGrid");
     const cameraVideo = document.getElementById("cameraVideo");
     const auraLiveOverlay = document.getElementById("auraLiveOverlay");
     const camStatus = document.getElementById("camStatus");
@@ -1139,27 +1053,151 @@
     const toastMsg = document.getElementById("toastMsg");
     const printImg = document.getElementById("printImg");
 
-    // Populate the 6 Aura cards
-    function renderAuraGrid() {
-      auraGrid.innerHTML = "";
-      AURAS.forEach((aura) => {
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = "aura-card";
-        btn.title = aura.name;
-        const imgStyle = aura.cropBorder ? ' style="transform: scale(1.16);"' : "";
-        btn.innerHTML = `<img src="${aura.thumb}?v=8"${imgStyle} alt="${aura.name}" /><span class="aura-card-label">${aura.name}</span>`;
-        btn.addEventListener("click", () => {
-          selectedAura = aura;
-          openCameraPreview();
-        });
-        auraGrid.appendChild(btn);
+    // Automatically predicts the guest's aura from captured portrait features (outfit hues, warmth, brightness, contrast & expression energy)
+    function predictAuraFromCapture() {
+      const tw = trackCanvas.width;
+      const th = trackCanvas.height;
+      const tCtx = trackCanvas.getContext("2d", { willReadFrequently: true });
+      const data = tCtx.getImageData(0, 0, tw, th).data;
+
+      // 1. Sample guest's outfit & lower-portrait zone around tracked face
+      const ox0 = Math.max(0, Math.floor(tw * (faceState.x - 0.30)));
+      const ox1 = Math.min(tw, Math.ceil(tw * (faceState.x + 0.30)));
+      const oy0 = Math.max(0, Math.floor(th * Math.min(0.84, faceState.y + faceState.ry * 0.85)));
+      const oy1 = Math.min(th, Math.ceil(th * 0.97));
+
+      let count = 0;
+      let sumLuma = 0;
+      let sumLumaSq = 0;
+      let sumSat = 0;
+      let sumWarmth = 0;
+      let pinkViolet = 0;
+      let warmCoral = 0;
+      let greenTeal = 0;
+      let blueIndigo = 0;
+      let darkCount = 0;
+      let brightCount = 0;
+      let fingerprint = 2166136261;
+
+      for (let y = oy0; y < oy1; y++) {
+        for (let x = ox0; x < ox1; x++) {
+          const i = (y * tw + x) * 4;
+          const r = data[i];
+          const g = data[i + 1];
+          const b = data[i + 2];
+          const rf = r / 255;
+          const gf = g / 255;
+          const bf = b / 255;
+
+          const luma = 0.299 * rf + 0.587 * gf + 0.114 * bf;
+          sumLuma += luma;
+          sumLumaSq += luma * luma;
+          sumWarmth += (rf - bf);
+          if (luma < 0.28) darkCount++;
+          if (luma > 0.68) brightCount++;
+
+          const maxC = Math.max(rf, gf, bf);
+          const minC = Math.min(rf, gf, bf);
+          const delta = maxC - minC;
+          const sat = maxC > 0 ? delta / maxC : 0;
+          sumSat += sat;
+
+          if (sat > 0.16 && maxC > 0.12 && delta > 0) {
+            let hue = 0;
+            if (maxC === rf) hue = ((gf - bf) / delta) % 6;
+            else if (maxC === gf) hue = (bf - rf) / delta + 2;
+            else hue = (rf - gf) / delta + 4;
+            hue = (hue * 60 + 360) % 360;
+
+            if (hue >= 270 && hue < 345) pinkViolet++;
+            else if (hue >= 345 || hue < 55) warmCoral++;
+            else if (hue >= 75 && hue < 190) greenTeal++;
+            else if (hue >= 190 && hue < 270) blueIndigo++;
+          }
+
+          if ((x + y) % 5 === 0) {
+            fingerprint ^= ((r >> 4) << 8) | ((g >> 4) << 4) | (b >> 4);
+            fingerprint = Math.imul(fingerprint, 16777619);
+          }
+          count++;
+        }
+      }
+
+      const n = Math.max(1, count);
+      const avgLuma = sumLuma / n;
+      const contrast = Math.min(1, Math.sqrt(Math.max(0, sumLumaSq / n - avgLuma * avgLuma)) * 3.2);
+      const avgSat = sumSat / n;
+      const warmth = Math.max(0, Math.min(1, (sumWarmth / n + 0.35) / 0.70));
+      const darkRatio = darkCount / n;
+      const brightRatio = brightCount / n;
+      const rPinkViolet = pinkViolet / n;
+      const rWarmCoral = warmCoral / n;
+      const rGreenTeal = greenTeal / n;
+      const rBlueIndigo = blueIndigo / n;
+
+      // 2. Sample face brightness & lower-face expression/contour energy
+      const fx0 = Math.max(1, Math.floor(tw * (faceState.x - faceState.rx * 0.75)));
+      const fx1 = Math.min(tw - 2, Math.ceil(tw * (faceState.x + faceState.rx * 0.75)));
+      const fy0 = Math.max(1, Math.floor(th * faceState.y));
+      const fy1 = Math.min(th - 2, Math.ceil(th * (faceState.y + faceState.ry * 0.85)));
+
+      let fCount = 0;
+      let fLumaSum = 0;
+      let edgeSum = 0;
+      for (let y = fy0; y < fy1; y++) {
+        for (let x = fx0; x < fx1; x++) {
+          const i = (y * tw + x) * 4;
+          const ir = (y * tw + (x + 1)) * 4;
+          const l = (0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2]) / 255;
+          const lr = (0.299 * data[ir] + 0.587 * data[ir + 1] + 0.114 * data[ir + 2]) / 255;
+          fLumaSum += l;
+          edgeSum += Math.abs(lr - l);
+          fCount++;
+        }
+      }
+      const fn = Math.max(1, fCount);
+      const faceLuma = fLumaSum / fn;
+      const expressiveness = Math.min(1, (edgeSum / fn) * 10);
+
+      // 3. Score each of the 6 auras against the guest's extracted visual signature
+      const rawScores = {
+        "magenta-retro-haze":
+          rPinkViolet * 2.4 + expressiveness * 0.85 + (1 - contrast) * 0.65 + warmth * 0.45 + avgSat * 0.45,
+        "vintage-magenta-coral":
+          rWarmCoral * 2.2 + brightRatio * 1.05 + warmth * 0.85 + expressiveness * 0.70 + avgSat * 0.55,
+        "cobalt-violet-vintage":
+          rBlueIndigo * 2.2 + (1 - warmth) * 0.90 + (1 - expressiveness) * 0.70 + (1 - brightRatio) * 0.40,
+        "retro-color-light":
+          contrast * 1.85 + avgSat * 0.65 + expressiveness * 0.65 + (rPinkViolet + rBlueIndigo + rWarmCoral) * 0.45,
+        "cobalt-emerald-bloom":
+          rGreenTeal * 2.6 + rBlueIndigo * 0.70 + (1 - Math.abs(avgLuma - 0.5) * 2) * 0.70 + (1 - warmth) * 0.50,
+        "amber-magenta-halo":
+          Math.max(0, darkRatio - brightRatio) * 1.65 + Math.max(0, faceLuma - avgLuma) * 1.10 + warmth * 0.55 + (1 - expressiveness) * 0.40
+      };
+
+      // Subtle deterministic per-guest portrait tie-breaker + gentle anti-repeat for back-to-back guests
+      let bestAura = AURAS[0];
+      let bestScore = -Infinity;
+      AURAS.forEach((aura, idx) => {
+        const hVal = (((fingerprint >>> (idx * 4)) ^ (fingerprint * (idx + 3))) >>> 0) % 1000;
+        const microTie = (hVal / 1000) * 0.16;
+        let repeatPenalty = 0;
+        if (recentAuraIds[0] === aura.id) repeatPenalty = 0.24;
+        else if (recentAuraIds[1] === aura.id) repeatPenalty = 0.09;
+
+        const score = (rawScores[aura.id] || 0) + microTie - repeatPenalty;
+        if (score > bestScore) {
+          bestScore = score;
+          bestAura = aura;
+        }
       });
+
+      recentAuraIds.unshift(bestAura.id);
+      if (recentAuraIds.length > 2) recentAuraIds.pop();
+      return bestAura;
     }
-    renderAuraGrid();
 
     function showScreen(num) {
-      screen1.classList.toggle("active", num === 1);
       screen2.classList.toggle("active", num === 2);
       screen3.classList.toggle("active", num === 3);
     }
@@ -1480,9 +1518,6 @@
 
     function startLiveTrackingLoop() {
       if (liveTrackRaf) cancelAnimationFrame(liveTrackRaf);
-      const oCtx = auraLiveOverlay.getContext("2d");
-      const w = auraLiveOverlay.width;
-      const h = auraLiveOverlay.height;
       function step() {
         if (!usingWebcam || !screen2.classList.contains("active")) {
           liveTrackRaf = null;
@@ -1490,7 +1525,6 @@
         }
         if (!isFrozen && cameraVideo.videoWidth > 0) {
           updateFaceTracking(cameraVideo, true, false);
-          paintAuraGlowOverlay(oCtx, w, h, true);
         }
         liveTrackRaf = requestAnimationFrame(step);
       }
@@ -1501,7 +1535,6 @@
       isFrozen = false;
       showScreen(2);
       cameraVideo.style.filter = "none";
-      paintAuraGlowOverlay(auraLiveOverlay.getContext("2d"), auraLiveOverlay.width, auraLiveOverlay.height, true);
       stopCamera();
 
       camStatus.classList.remove("hidden");
@@ -1550,7 +1583,7 @@
       cameraVideo.srcObject = null;
     }
 
-    // Draws captured camera frame + distinct per-filter Kirlian Aura overlay while keeping the face 100% original
+    // Captures raw frame, automatically predicts guest's aura, and paints immediate fallback preview
     function drawAuraFrame(ctx, w, h) {
       const rawCtx = rawCaptureCanvas.getContext("2d");
       rawCtx.fillStyle = "#080d1a";
@@ -1571,13 +1604,15 @@
       }
 
       updateFaceTracking(rawCaptureCanvas, false, true);
+      selectedAura = predictAuraFromCapture();
+
       // Single base draw of the camera capture + single masked Aura overlay (zero duplicate/double-exposure ghosting)
       ctx.globalCompositeOperation = "source-over";
       ctx.drawImage(rawCaptureCanvas, 0, 0, w, h);
       paintAuraGlowOverlay(ctx, w, h, false);
     }
 
-    // Removes the background via Bria AI and composites the Auracam 6000 Aura effect around the isolated subject
+    // Removes the background via Bria AI and composites the predicted Auracam 6000 Aura effect around the isolated subject
     async function generateWithOpenAi(promptForKeyIfMissing) {
       const storedKey = (localStorage.getItem("OPENAI_API_KEY") || "").trim();
       const briaKey = (localStorage.getItem("BRIA_API_KEY") || "4e1e3aa7a0d54a5a944833f1d3f63919").trim();
@@ -2090,16 +2125,11 @@
     }
 
     // Controls wiring
-    document.getElementById("btnStart").addEventListener("click", () => {
-      openCameraPreview();
-    });
-
     document.getElementById("btnRetakeCam").addEventListener("click", () => {
       if (isFrozen) {
         isFrozen = false;
       } else {
-        stopCamera();
-        showScreen(1);
+        openCameraPreview();
       }
     });
 
@@ -2124,7 +2154,7 @@
           try {
             await navigator.share({
               title: "RuPay — Own the edge",
-              text: `My RuPay Aura: ${selectedAura.name}`,
+              text: "My RuPay Aura",
               files: [file]
             });
             showToast("Shared successfully");
@@ -2173,17 +2203,18 @@
     });
 
     document.getElementById("btnRestart").addEventListener("click", () => {
-      showScreen(1);
+      openCameraPreview();
     });
 
-    // Mobile QR Scan Landing Page (?p=...)
-    (function initQrLanding() {
+    // Boot directly into camera preview (unless opened via QR scan ?p=...)
+    (function initBoothOrQrLanding() {
       const params = new URLSearchParams(window.location.search);
       const pParam = params.get("p");
-      if (!pParam) return;
+      if (!pParam) {
+        openCameraPreview();
+        return;
+      }
 
-      const aIdx = Number(params.get("a") || 0);
-      const auraObj = AURAS[aIdx] || AURAS[0];
       const fullImgUrl = pParam.startsWith("http")
         ? pParam
         : `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/image/upload/${pParam.replace(/^\/+/, "")}`;
@@ -2191,7 +2222,6 @@
       const screenQrLanding = document.getElementById("screenQrLanding");
       const qrLandingImg = document.getElementById("qrLandingImg");
 
-      screen1.classList.remove("active");
       screen2.classList.remove("active");
       screen3.classList.remove("active");
       screenQrLanding.classList.add("active");
@@ -2226,7 +2256,7 @@
           if (navigator.canShare && navigator.canShare({ files: [file] })) {
             await navigator.share({
               title: "RuPay — Discover Your Aura",
-              text: `My RuPay Aura: ${auraObj.name}`,
+              text: "My RuPay Aura",
               files: [file]
             });
             return;
@@ -2234,7 +2264,7 @@
           if (navigator.share) {
             await navigator.share({
               title: "RuPay — Discover Your Aura",
-              text: `My RuPay Aura: ${auraObj.name}`,
+              text: "My RuPay Aura",
               url: window.location.href
             });
             return;
