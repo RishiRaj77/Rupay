@@ -162,6 +162,39 @@
       transition: transform 0.12s ease, filter 0.12s ease;
     }
 
+    /* Screen 1: Clean Start Page */
+    #screen1 {
+      justify-content: center;
+      gap: clamp(28px, 5vh, 54px);
+      padding-bottom: clamp(16px, 4vh, 42px);
+    }
+
+    .start-hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: clamp(12px, 2vh, 22px);
+      text-align: center;
+    }
+
+    .start-hero-logo {
+      width: min(76%, 300px);
+      height: auto;
+      object-fit: contain;
+      filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.4));
+    }
+
+    #btnStart {
+      min-width: clamp(210px, 52vw, 270px);
+      padding: clamp(13px, 1.9vh, 18px) clamp(32px, 6vw, 48px);
+      font-size: clamp(0.95rem, 2vh, 1.15rem);
+      letter-spacing: 2.2px;
+      box-shadow:
+        0 10px 26px rgba(4, 18, 54, 0.65),
+        inset 0 2px 4px rgba(255, 255, 255, 0.5),
+        inset 0 -3px 6px rgba(2, 10, 32, 0.85);
+    }
+
     .glossy-btn:hover {
       filter: brightness(1.12);
       transform: translateY(-1px);
@@ -545,6 +578,14 @@
         font-size: clamp(0.66rem, 1.4vh, 1.65rem);
         padding: clamp(6px, 1vh, 20px) clamp(11px, 2.4vw, 38px);
       }
+      .start-hero-logo {
+        width: clamp(220px, 72vw, 540px);
+      }
+      #btnStart {
+        min-width: clamp(210px, 50vw, 520px);
+        padding: clamp(14px, 2vh, 34px) clamp(32px, 6vw, 80px);
+        font-size: clamp(0.95rem, 2.1vh, 2.4rem);
+      }
       .shutter-btn {
         width: clamp(48px, 7.2vh, 138px);
         height: clamp(48px, 7.2vh, 138px);
@@ -749,8 +790,21 @@
       </g>
     </svg>
 
+    <!-- ==================== SCREEN 1: START PAGE ==================== -->
+    <section id="screen1" class="screen active">
+      <div class="start-hero">
+        <img class="start-hero-logo" src="rupay-loading.png" alt="RuPay - Own the edge" />
+        <div class="subtitle-serif">Discover Your Aura</div>
+      </div>
+
+      <button type="button" class="glossy-btn" id="btnStart">
+        <span>START</span>
+        <span style="font-size:1.15em;line-height:1;">→</span>
+      </button>
+    </section>
+
     <!-- ==================== SCREEN 2: CAMERA PREVIEW & CAPTURE ==================== -->
-    <section id="screen2" class="screen active">
+    <section id="screen2" class="screen">
       <div class="top-brand" style="margin-top:8px;">
         <img class="rupay-logo rupay-logo-lockup" src="rupay-logo.png?v=5" alt="RuPay - Own the edge" />
         <div class="subtitle-serif">Discover Your Aura</div>
@@ -1033,6 +1087,7 @@
       }
     }
 
+    const screen1 = document.getElementById("screen1");
     const screen2 = document.getElementById("screen2");
     const screen3 = document.getElementById("screen3");
     const cameraVideo = document.getElementById("cameraVideo");
@@ -1198,6 +1253,7 @@
     }
 
     function showScreen(num) {
+      screen1.classList.toggle("active", num === 1);
       screen2.classList.toggle("active", num === 2);
       screen3.classList.toggle("active", num === 3);
     }
@@ -2125,11 +2181,16 @@
     }
 
     // Controls wiring
+    document.getElementById("btnStart").addEventListener("click", () => {
+      openCameraPreview();
+    });
+
     document.getElementById("btnRetakeCam").addEventListener("click", () => {
       if (isFrozen) {
         isFrozen = false;
       } else {
-        openCameraPreview();
+        stopCamera();
+        showScreen(1);
       }
     });
 
@@ -2203,17 +2264,14 @@
     });
 
     document.getElementById("btnRestart").addEventListener("click", () => {
-      openCameraPreview();
+      showScreen(1);
     });
 
-    // Boot directly into camera preview (unless opened via QR scan ?p=...)
-    (function initBoothOrQrLanding() {
+    // Mobile QR Scan Landing Page (?p=...)
+    (function initQrLanding() {
       const params = new URLSearchParams(window.location.search);
       const pParam = params.get("p");
-      if (!pParam) {
-        openCameraPreview();
-        return;
-      }
+      if (!pParam) return;
 
       const fullImgUrl = pParam.startsWith("http")
         ? pParam
@@ -2222,6 +2280,7 @@
       const screenQrLanding = document.getElementById("screenQrLanding");
       const qrLandingImg = document.getElementById("qrLandingImg");
 
+      screen1.classList.remove("active");
       screen2.classList.remove("active");
       screen3.classList.remove("active");
       screenQrLanding.classList.add("active");
